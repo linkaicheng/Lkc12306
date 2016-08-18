@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="com.cheng.lkc12306.MainActivity">
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        >
+        <RadioButton
+            android:drawableTop="@drawable/rb_ticket_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="车票预订"
+            android:id="@+id/rbOrder"
+            android:checked="true"
+            style="@style/style_RadioButton"/>
+        <RadioButton
+            android:drawableTop="@drawable/rb_order_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="订票管理"
+
+            style="@style/style_RadioButton"
+            android:id="@+id/rbTicket" />
+
+
+        <RadioButton
+            android:drawableTop="@drawable/rb_my_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="我的12306"
+            android:id="@+id/rbMy"
+            style="@style/style_RadioButton"/>
+    </RadioGroup>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/radioGroup"
+        />
+
+
+
+
+</RelativeLayout>
