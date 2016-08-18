@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
         //初始化ViewPager
         initViewPager();
-
+//***************************************test
     }
     private void initView(){
         mGroup = (RadioGroup)findViewById(R.id.radioGroup);
