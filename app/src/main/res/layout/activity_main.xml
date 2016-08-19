@@ -14,18 +14,19 @@
         android:background="@color/white"
         >
         <RadioButton
-            android:drawableTop="@drawable/rb_ticket_selector"
+            android:drawableTop="@drawable/rb_order_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="车票预订"
+            android:text="订单管理"
             android:id="@+id/rbOrder"
             android:checked="true"
             style="@style/style_RadioButton"/>
         <RadioButton
-            android:drawableTop="@drawable/rb_order_selector"
+            android:drawableTop="@drawable/rb_ticket_selector"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="订票管理"
+            android:text="车票预订"
 
             style="@style/style_RadioButton"
             android:id="@+id/rbTicket" />
