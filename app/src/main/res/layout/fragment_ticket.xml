@@ -2,13 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/orangered">
+
+   >
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="订票管理"
-        android:id="@+id/textView"
-        android:textSize="50sp"
-        android:layout_gravity="center"/>
+        android:text="北京"
+        android:id="@+id/tvStationFrom"
+        android:layout_weight="2"
+        android:textSize="25sp"
+        android:gravity="center"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imExchange"
+        android:src="@mipmap/forward_25"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="上海"
+        android:id="@+id/tvStationTo"
+        android:layout_weight="2"
+        android:textSize="25sp"
+        android:gravity="center"/>
 </LinearLayout>

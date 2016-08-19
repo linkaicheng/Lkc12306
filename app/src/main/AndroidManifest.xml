@@ -20,6 +20,7 @@
         <activity android:name=".my.ContactAddActivity" />
         <activity android:name=".my.AccountActivity" />
         <activity android:name=".my.PassWordActivity"></activity>
+        <activity android:name=".stationlist.StationListActivity"></activity>
     </application>
 
 </manifest>
