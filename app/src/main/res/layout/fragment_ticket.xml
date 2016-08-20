@@ -27,6 +27,7 @@
                 android:layout_weight="1"
                 android:textSize="20sp"
                 android:padding="10dp"
+                android:layout_marginLeft="20dp"
                 />
 
             <TextView
@@ -36,7 +37,8 @@
                 android:id="@+id/tvCityTo"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:layout_marginRight="20dp"/>
         </LinearLayout>
 
         <LinearLayout
