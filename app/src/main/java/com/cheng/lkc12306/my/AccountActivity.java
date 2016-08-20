@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -34,8 +35,14 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+        initView();
+
+    }
+    //初始化控件，并设置监听
+    private void initView(){
         lvAccount = (ListView) findViewById(R.id.lvAccount);
         btnAccountSave = (Button) findViewById(R.id.btnAccountSave);
         data = getData();
@@ -43,29 +50,32 @@ public class AccountActivity extends AppCompatActivity {
                 R.layout.item_my_account, new String[]{"key1", "key2", "key3"},
                 new int[]{R.id.tvAccountKey, R.id.tvAccountValue, R.id.imAccountFlag});
         lvAccount.setAdapter(adapter);
-        lvAccount.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-
-                    case 3:
-                        String[] passengerItem = new String[]{"成人", "儿童", "学生", "其他"};
-                        changeType("请你选择乘客类型", position, passengerItem);
-
-                        break;
-                    case 4:
-                        change(position, "请输电话号码");
-                        break;
-                }
-            }
-        });
-        btnAccountSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(AccountActivity.this, "AccountActivity:保存", Toast.LENGTH_SHORT).show();
-            }
-        });
+        lvAccount.setOnItemClickListener(new lvAccountListener());
+        btnAccountSave.setOnClickListener(new BtnAccountSaveListener());
     }
+    //乘客类型和电话号码的点击监听
+    private class lvAccountListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            switch (position) {
+                case 3:
+                    String[] passengerItem = new String[]{"成人", "儿童", "学生", "其他"};
+                    changeType("请你选择乘客类型", position, passengerItem);
+                    break;
+                case 4:
+                    change(position, "请输电话号码");
+                    break;
+            }
+        }
+    }
+    //保存按钮的点击监听
+    private class BtnAccountSaveListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(AccountActivity.this, "AccountActivity:保存", Toast.LENGTH_SHORT).show();
+        }
+    }
+    //弹出类型选择的对话框
     private void changeType(final String title,final int position,String[] items){
         final String[] items2;
         //创建一个Builder对象
@@ -92,13 +102,13 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //此在此处实现取消逻辑代码
-
                 dialog.dismiss();
             }
         });
         //显示对话框
         builder.create().show();
     }
+    //弹出号码编辑框
     private void change(final int position,final String title){
 
         final AlertDialog.Builder builder=new AlertDialog.Builder(this);
@@ -111,7 +121,9 @@ public class AccountActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String input=edtInput.getText().toString();
                 if(TextUtils.isEmpty(input)){
+                    //如果号码编辑框是空，让对话框不消失
                     DialogUtil.dialogClose(dialog,false);
+                    //提示用户错误信息
                     edtInput.setError(title);
                     edtInput.requestFocus();
                 }else{
@@ -132,6 +144,7 @@ public class AccountActivity extends AppCompatActivity {
         builder.create().show();
 
     }
+    //数据的获取
     private List<Map<String, Object>> getData() {
         List<Map<String,Object>> data=new ArrayList<>();
         Map<String,Object> row=new HashMap<>();
@@ -166,5 +179,18 @@ public class AccountActivity extends AppCompatActivity {
         data.add(row);
         return data;
     }
+
+    //界面左上角箭头，点击，回到上一个界面
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        //noinspection SimplifiableIfStatement
+        switch (id) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
+}
 

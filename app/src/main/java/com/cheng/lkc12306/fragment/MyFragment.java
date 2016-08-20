@@ -51,7 +51,7 @@ public class MyFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Intent intent = new Intent();
+            final Intent intent = new Intent();
                 switch (position) {
                     case 0:
                         intent.setClass(getActivity(), ContactActivity.class);
@@ -63,7 +63,7 @@ public class MyFragment extends Fragment {
                         intent.setClass(getActivity(), PassWordActivity.class);
                         break;
                 }
-                startActivity(intent);
+                    startActivity(intent);
             }
         });
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -74,6 +74,7 @@ public class MyFragment extends Fragment {
         });
 
     }
+
 
     private List<Map<String, Object>> getData() {
         List<Map<String, Object>> data = new ArrayList<>();

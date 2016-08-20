@@ -29,27 +29,28 @@ public class ContactActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
+       initView();
+    }
+    //初始化控件并添加监听
+    private void initView(){
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         lvContact = (ListView)findViewById(R.id.lvContact);
-         data=getData();
+        data=getData();
         SimpleAdapter adapter=new SimpleAdapter(this,data,R.layout.item_my_contact,
                 new String[]{"name","idCard","tel"},new int[]{R.id.tvContactName,R.id.tvContactIdCard
-        ,R.id.tvContactTel});
+                ,R.id.tvContactTel});
         lvContact.setAdapter(adapter);
-        lvContact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent=new Intent(ContactActivity.this,ContactEditActivity.class);
-                Map<String,Object> contact=data.get(position);
-                intent.putExtra("contact", (Serializable) contact);
-
-                startActivity(intent);
-            }
-        });
-
-
-
+        lvContact.setOnItemClickListener(new lvContactOnItListener());
+    }
+    private class lvContactOnItListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Intent intent=new Intent(ContactActivity.this,ContactEditActivity.class);
+            Map<String,Object> contact=data.get(position);
+            intent.putExtra("contact", (Serializable) contact);
+            startActivity(intent);
+        }
     }
     private List<Map<String,Object>> getData(){
         List<Map<String,Object>> data=new ArrayList<>();
@@ -71,32 +72,25 @@ public class ContactActivity extends AppCompatActivity {
         data.add(row);
         return data;
     }
+    //创建右上角添加联系人的图标
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_my_contact, menu);
         return true;
     }
-
+    //为添加联系人的图标和回退箭头设置点击监听
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
       switch (id) {
           case  R.id.addContact:
               Intent intent=new Intent(ContactActivity.this,ContactAddActivity.class);
               startActivity(intent);
               break;
-
           case android.R.id.home:
               finish();
               break;
       }
-
         return super.onOptionsItemSelected(item);
     }
 }

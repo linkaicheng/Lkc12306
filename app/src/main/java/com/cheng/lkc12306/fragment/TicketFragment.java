@@ -33,11 +33,17 @@ public class TicketFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ticket, container, false);
+
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        initView();
+
+    }
+    //初始化按钮，并为按钮设置监听
+    private void initView(){
         tvStationFrom = (TextView) getActivity().findViewById(R.id.tvStationFrom);
         tvStationTo = (TextView) getActivity().findViewById(R.id.tvStationTo);
         imExchange = (ImageView) getActivity().findViewById(R.id.imExchange);
@@ -48,9 +54,8 @@ public class TicketFragment extends Fragment {
         imExchange.setOnClickListener(new ImExchangeListener());
         //选择日期
         tvArrivalTimeShow.setOnClickListener(new tvArrivalTimeShowListener());
-
-
     }
+
     //日期的点击监听
     private class tvArrivalTimeShowListener implements View.OnClickListener{
         @Override
@@ -68,7 +73,7 @@ public class TicketFragment extends Fragment {
 
         }
     }
-    //交换箭头的点击监听
+    //交换箭头的点击监听，和动画的实现
     private class ImExchangeListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -93,7 +98,6 @@ public class TicketFragment extends Fragment {
                     tvStationTo.setText(stationFrom);
 
                 }
-
                 @Override
                 public void onAnimationRepeat(Animation animation) {
 

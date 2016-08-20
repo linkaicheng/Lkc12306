@@ -44,6 +44,11 @@ public class ContactAddActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_add);
+        initView();
+
+    }
+    //初始化控件并设置监听
+    private void initView(){
         lvContactAdd = (ListView) findViewById(R.id.lvContactAdd);
         btnSave = (Button) findViewById(R.id.btnSave);
         data = getData();
@@ -51,39 +56,43 @@ public class ContactAddActivity extends AppCompatActivity {
                 R.layout.item_my_contact_add, new String[]{"key1", "key2", "key3"},
                 new int[]{R.id.tvContactAddKey, R.id.tvContactAddValue, R.id.imContactAddFlg});
         lvContactAdd.setAdapter(adapter);
-        lvContactAdd.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        change(position, "请输入姓名");
-                        break;
-                    case 1:
-                        String[] items = new String[]{"身份证", "学生证", "军人证"};
-                        changeType("你选择证件类型", position, items);
-                        break;
-                    case 2:
-                        change(position, "请输证件号码");
-                        break;
-                    case 3:
-                        String[] passengerItem = new String[]{"成人", "儿童", "学生", "其他"};
-                        changeType("请你选择乘客类型", position, passengerItem);
-
-                        break;
-                    case 4:
-                        change(position, "请输电话号码");
-                        break;
-                }
-            }
-        });
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(ContactAddActivity.this, "ContactAddActivity:保存", Toast.LENGTH_SHORT).show();
-            }
-        });
+        lvContactAdd.setOnItemClickListener(new LvContactAddOnItCkListener());
+        btnSave.setOnClickListener(new BtnSaveOnCkListener());
     }
+    //联系人信息列表的点击监听
+    private class LvContactAddOnItCkListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            switch (position) {
+                case 0:
+                    change(position, "请输入姓名");
+                    break;
+                case 1:
+                    String[] items = new String[]{"身份证", "学生证", "军人证"};
+                    changeType("你选择证件类型", position, items);
+                    break;
+                case 2:
+                    change(position, "请输证件号码");
+                    break;
+                case 3:
+                    String[] passengerItem = new String[]{"成人", "儿童", "学生", "其他"};
+                    changeType("请你选择乘客类型", position, passengerItem);
 
+                    break;
+                case 4:
+                    change(position, "请输电话号码");
+                    break;
+            }
+        }
+    }
+    //保存按钮的点击监听
+    private class BtnSaveOnCkListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(ContactAddActivity.this, "ContactAddActivity:保存", Toast.LENGTH_SHORT).show();
+        }
+    }
+//弹出乘客类型或证件类型的选择对话框
     private void changeType(final String title, final int position, String[] items) {
         final String[] items2;
         //创建一个Builder对象
@@ -117,7 +126,7 @@ public class ContactAddActivity extends AppCompatActivity {
         //显示对话框
         builder.create().show();
     }
-
+//其他信息的输入对话框
     private void change(final int position, final String title) {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -186,23 +195,19 @@ public class ContactAddActivity extends AppCompatActivity {
         data.add(row);
         return data;
     }
-
+//菜单栏图标的创建
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_my_contact_add, menu);
         return true;
     }
-
+//菜单栏图标的点击监听
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
-
-
         switch (id) {
             case R.id.searhContact:
-                //读通读录权限
+                //读通读录权限（兼容android M（api23)需要这段代码）
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.READ_CONTACTS);
                     if (hasWriteContactsPermission
@@ -212,7 +217,9 @@ public class ContactAddActivity extends AppCompatActivity {
                                 {Manifest.permission.READ_CONTACTS}, REQUEST_CODE_ASK_PERMISSIONS);
                         break;
                     }
-                }//从通讯录中拿到用户名和电话
+                }
+
+                //从通讯录中拿到用户名和电话
                 getContacts();
                 break;
             case android.R.id.home:
