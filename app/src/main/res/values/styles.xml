@@ -16,5 +16,10 @@
         <item name="android:textColor">@color/rb_focus_color</item>
 
     </style>
+    <style name="FullScreenTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">?android:windowNoTitle</item>
+    </style>
+
 
 </resources>

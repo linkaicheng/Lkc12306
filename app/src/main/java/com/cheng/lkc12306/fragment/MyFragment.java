@@ -1,6 +1,8 @@
 package com.cheng.lkc12306.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,9 +13,9 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
+import com.cheng.lkc12306.login.LoginActivity;
 import com.cheng.lkc12306.my.AccountActivity;
 import com.cheng.lkc12306.my.ContactActivity;
 import com.cheng.lkc12306.my.PassWordActivity;
@@ -69,7 +71,19 @@ public class MyFragment extends Fragment {
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "MyActivity:退出登录", Toast.LENGTH_SHORT).show();
+                //1、获得SharedPreferences对象
+                SharedPreferences sp=getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                //2.通过sp对象获得编辑器
+                SharedPreferences.Editor editor=sp.edit();
+                //调用remove()方法清除数据
+                editor.remove("name");
+                editor.remove("pwd");
+                editor.clear();
+                //提交数据
+                editor.commit();
+               Intent intent=new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
             }
         });
 
