@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     break;
                 //
-                case 0:
+                case 2:
                     Toast.makeText(LoginActivity.this, "服务器忙。。。。", Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -135,7 +135,6 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "当前网络不可用", Toast.LENGTH_SHORT).show();
                     return;//返回，不执行后续代码
                 }
-
 
                 //显示圆形进度对话框
                 pDialog = ProgressDialog.show(LoginActivity.this, null, "正在登陆，请稍后", false, true);

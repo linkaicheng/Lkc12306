@@ -127,6 +127,18 @@ public class MyFragment extends Fragment {
                 pDialog.dismiss();
             }
             if("1".equals(s)){
+                //如果有保存密码，删除
+                SharedPreferences sp=getActivity().getSharedPreferences("user",Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor=sp.edit();
+                String username=sp.getString("username","");
+                String password=sp.getString("password","");
+                if(username!=""){
+                    editor.remove("username");
+                }
+                if(password!=""){
+                    editor.remove("password");
+                }
+                editor.commit();
                 Toast.makeText(getActivity(), "退出成功", Toast.LENGTH_SHORT).show();
                 Intent intent=new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
