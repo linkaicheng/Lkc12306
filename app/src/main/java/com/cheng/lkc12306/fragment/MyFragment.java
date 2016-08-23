@@ -1,8 +1,10 @@
 package com.cheng.lkc12306.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,13 +15,20 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.login.LoginActivity;
 import com.cheng.lkc12306.my.AccountActivity;
 import com.cheng.lkc12306.my.ContactActivity;
 import com.cheng.lkc12306.my.PassWordActivity;
+import com.cheng.lkc12306.utils.Constant;
+import com.cheng.lkc12306.utils.NetUtils;
+import com.cheng.lkc12306.utils.URLConnManager;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +41,7 @@ public class MyFragment extends Fragment {
     private ListView lvMy;
     //退出登录按钮
     private Button btnLogout;
+    private ProgressDialog pDialog;
 
     @Nullable
     @Override
@@ -62,21 +72,70 @@ public class MyFragment extends Fragment {
     private class BtnLogoutOnCkListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            //清除保存的密码
-            //1、获得SharedPreferences对象
-            SharedPreferences sp = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
-            //2.通过sp对象获得编辑器
-            SharedPreferences.Editor editor = sp.edit();
-            //调用remove()方法清除数据
-            editor.remove("name");
-            editor.remove("pwd");
-            editor.clear();
-            //提交数据
-            editor.commit();
-            //到登录界面
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            startActivity(intent);
-            getActivity().finish();
+            //如果网络不可用，给出提示，并return
+            if(!NetUtils.check(getActivity())){
+                Toast.makeText(getActivity(), "当前网络不可用", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //使用异步任务实现退出登录
+            new LogoutTask().execute();
+
+        }
+    }
+    private class  LogoutTask extends AsyncTask<String,Void,String>{
+        @Override
+        protected void onPreExecute() {
+            //初始化操作，显示进度条
+            pDialog=ProgressDialog.show(getActivity(),null,"正在退出",false,true);
+
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {//执行网络等耗时操作
+            String result=null;
+            try {
+            //
+            HttpURLConnection conn= URLConnManager.getHttpURLConnection(Constant.HOST+"/otn/Logout");
+            //拿到cookie
+           SharedPreferences sp=getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+            String cookieValue=sp.getString("cookie","");
+            conn.setRequestProperty("cookie",cookieValue);
+                conn.connect();
+                int code=conn.getResponseCode();
+                //Log.e("cheng","*********"+code);
+                if(code==200){
+                     //获取输入流
+                    InputStream inputStream=conn.getInputStream();
+                    //将输入流转成字符串“0”，或“1”
+                    String response=URLConnManager.converStreamToString(inputStream);
+                    result=response.substring(1,2);
+                }
+               // Log.e("cheng","********"+result);
+                conn.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String s) { // 更新ui
+            //关闭进度对话框
+            if(pDialog!=null){
+                pDialog.dismiss();
+            }
+            if("1".equals(s)){
+                Toast.makeText(getActivity(), "退出成功", Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+            }else if("0".equals(s)){
+                Toast.makeText(getActivity(), "退出失败", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getActivity(), "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

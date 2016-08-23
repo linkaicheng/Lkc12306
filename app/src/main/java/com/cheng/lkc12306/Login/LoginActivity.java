@@ -45,38 +45,47 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox ckLogin;
     private ProgressDialog pDialog;
 
-     Handler handler=new Handler(){//进行界面更新
+    Handler handler = new Handler() {//进行界面更新
         @Override
         public void handleMessage(Message msg) {
-            if(pDialog!=null){
+            //关闭pDailog对话框
+            if (pDialog != null) {
                 pDialog.dismiss();
             }
             switch (msg.what) {
-                case  1:
-                    int result=msg.arg1;
-                    String jssionid= (String) msg.obj;
-                    if(0==result){
+                //1：连接上服务器
+                case 1:
+                    int result = msg.arg1;
+                    String jssionid = (String) msg.obj;
+                    //服务器返回0，验证失败
+                    if (0 == result) {
                         edtUserName.selectAll();
                         edtUserName.requestFocus();
                         edtUserName.setError("用户名或密码错误");
-                    }else if(1==result){
-                        SharedPreferences sp=getSharedPreferences("user", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor=sp.edit();
-                        editor.putString("cookie",jssionid);
-                        if(ckLogin.isChecked()){
-                            editor.putString("username",edtUserName.getText().toString());
-                            editor.putString("password",edtPassword.getText().toString());
-                        }else{
+                        //服务器返回1，登录成功
+                    } else if (1 == result) {
+                        SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        //记录JSESSIONID
+                        editor.putString("cookie", jssionid);
+                        //如果选中记住密码，将密码保存
+                        if (ckLogin.isChecked()) {
+                            editor.putString("username", edtUserName.getText().toString());
+                            editor.putString("password", edtPassword.getText().toString());
+                        } else {
+                            //如果没勾选记住密码，删除保存的用户名和密码
                             editor.remove("username");
                             editor.remove("password");
                         }
                         editor.commit();
-                        Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                        //登录成功，到MainActivity界面
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
                     break;
-                case  0:
+                //
+                case 0:
                     Toast.makeText(LoginActivity.this, "服务器忙。。。。", Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -102,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         tvLostPassword.setText(Html
                 .fromHtml("<a href=\"http://www.12306.cn\">忘记密码？</a>"));
         tvLostPassword.setMovementMethod(LinkMovementMethod.getInstance());
-
+//为登录按钮设置监听
         btnLogin.setOnClickListener(new BtnLoginOnCkListener());
     }
 
@@ -122,66 +131,64 @@ public class LoginActivity extends AppCompatActivity {
                 edtPassword.requestFocus();
             } else {//将用户名和密码提交到服务器进行验证
                 //判断网络是否有连接
-                if(!NetUtils.check(LoginActivity.this)){
+                if (!NetUtils.check(LoginActivity.this)) {
                     Toast.makeText(LoginActivity.this, "当前网络不可用", Toast.LENGTH_SHORT).show();
                     return;//返回，不执行后续代码
                 }
 
 
                 //显示圆形进度对话框
-                pDialog=ProgressDialog.show(LoginActivity.this,null,"正在登陆，请稍后",false,true);
-                new Thread(){
+                pDialog = ProgressDialog.show(LoginActivity.this, null, "正在登陆，请稍后", false, true);
+                //创建子线程，进行登录处理
+                new Thread() {
                     @Override
                     public void run() {
-                        Message msg=new Message();
-                        HttpURLConnection conn= URLConnManager.getHttpURLConnection(Constant.HOST+"/Login");
+                        Message msg = new Message();
+                        HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/Login");
                         try {
-                        List<NameValuePair> paramlist=new ArrayList<NameValuePair>();
-                        paramlist.add(new BasicNameValuePair("username",userName));
-                        paramlist.add(new BasicNameValuePair("password", Md5Utils.MD5(password)));
-                            URLConnManager.postParams(conn.getOutputStream(),paramlist);
+                            List<NameValuePair> paramlist = new ArrayList<NameValuePair>();
+                            paramlist.add(new BasicNameValuePair("username", userName));
+                            paramlist.add(new BasicNameValuePair("password", Md5Utils.MD5(password)));
+                            URLConnManager.postParams(conn.getOutputStream(), paramlist);
                             conn.connect();
-                            int code=conn.getResponseCode();
-                           // Log.e("cheng","*********"+code);
-                            if(code==200){
-
-                                InputStream is=conn.getInputStream();
-                                XmlPullParser parser= Xml.newPullParser();
-                                parser.setInput(is,"UTF-8");
-                                int eventType=parser.getEventType();
-                                String xmlResult=null;
-                                while(eventType!=XmlPullParser.END_DOCUMENT) {
+                            int code = conn.getResponseCode();
+                            // Log.e("cheng","*********"+code);
+                            if (code == 200) {
+                                InputStream is = conn.getInputStream();
+                                XmlPullParser parser = Xml.newPullParser();
+                                parser.setInput(is, "UTF-8");
+                                int eventType = parser.getEventType();
+                                String xmlResult = null;
+                                while (eventType != XmlPullParser.END_DOCUMENT) {
 
                                     switch (eventType) {
-                                        case  XmlPullParser.START_TAG:
-                                            if("result".equals(parser.getName())){
-                                                xmlResult=parser.nextText();
+                                        case XmlPullParser.START_TAG:
+                                            if ("result".equals(parser.getName())) {
+                                                xmlResult = parser.nextText();
                                             }
-                                        break;
+                                            break;
                                     }
-                                    eventType=parser.next();
+                                    eventType = parser.next();
                                 }
                                 //Log.e("cheng","********"+xmlResult);
                                 //关闭连接
                                 conn.disconnect();
-                                String cookieValue=null;
-                                String cookie=conn.getHeaderField("Set-Cookie");
-                                cookieValue=cookie.substring(0,cookie.indexOf(";"));
-                                msg.what=1;
-                                msg.arg1=Integer.parseInt(xmlResult);
-                                msg.obj=cookieValue;
-
-
-                            }else{
-                                msg.what=2;
+                                String cookieValue = null;
+                                String cookie = conn.getHeaderField("Set-Cookie");
+                                cookieValue = cookie.substring(0, cookie.indexOf(";"));
+                                msg.what = 1;
+                                msg.arg1 = Integer.parseInt(xmlResult);
+                                msg.obj = cookieValue;
+                            } else {
+                                msg.what = 2;
                             }
 
                         } catch (IOException e) {
                             e.printStackTrace();
-                            msg.what=2;
+                            msg.what = 2;
                         } catch (XmlPullParserException e) {
                             e.printStackTrace();
-                            msg.what=2;
+                            msg.what = 2;
                         }
                         handler.sendMessage(msg);
                     }
@@ -190,7 +197,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
 }
