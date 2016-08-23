@@ -27,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
                 String userName=sp.getString("name","");
                 String password=sp.getString("pwd","");
                 if(TextUtils.isEmpty(userName)||TextUtils.isEmpty(password)){
-                    Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(SplashActivity.this, com.cheng.lkc12306.login.LoginActivity.class);
                     //启动Activity
                     startActivity(intent);
                     finish();
