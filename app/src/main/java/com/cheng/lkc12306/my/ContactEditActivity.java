@@ -47,6 +47,7 @@ public class ContactEditActivity extends AppCompatActivity {
     private Button btnContactEditSave;
     private String action = "";//用来判断操作的类型：添加，删除，修改
     private ProgressDialog pDialog;
+    //修改或删除联系人后更新视图的操作
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -103,7 +104,7 @@ public class ContactEditActivity extends AppCompatActivity {
         btnContactEditSave.setOnClickListener(new BtnContactEditSaveOnCkListener());
     }
 
-    //保存按钮的点击监听
+    //保存按钮的点击监听（修改联系人）
     private class BtnContactEditSaveOnCkListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -118,7 +119,7 @@ public class ContactEditActivity extends AppCompatActivity {
             contactThread.start();
         }
     }
-
+//向服务器发出修改联系人的请求
     Thread contactThread = new Thread() {
         @Override
         public void run() {
@@ -333,9 +334,10 @@ public class ContactEditActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        switch (id) {
+        switch (id) {//点击删除联系人的图标，删除联系人，代码和修改联系人相同，只是把action改为remove
             case R.id.deleteContact:
-                Toast.makeText(ContactEditActivity.this, "*********", Toast.LENGTH_SHORT).show();
+                action="remove";
+                contactThread.start();
                 break;
             case android.R.id.home:
                 finish();
