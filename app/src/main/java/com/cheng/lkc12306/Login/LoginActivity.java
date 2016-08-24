@@ -170,6 +170,7 @@ public class LoginActivity extends AppCompatActivity {
                                     eventType = parser.next();
                                 }
                                 //Log.e("cheng","********"+xmlResult);
+                                is.close();
                                 //关闭连接
                                 conn.disconnect();
                                 String cookieValue = null;

@@ -111,7 +111,7 @@ public class SplashActivity extends AppCompatActivity {
                     HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/Login");
                     try {
                         //延时，使显示启动界面
-                        //Thread.sleep(1000);
+                        Thread.sleep(2000);
 
                         List<NameValuePair> paramlist = new ArrayList<NameValuePair>();
                         paramlist.add(new BasicNameValuePair("username",name));
@@ -138,6 +138,7 @@ public class SplashActivity extends AppCompatActivity {
                                 eventType = parser.next();
                             }
                             //Log.e("cheng","********"+xmlResult);
+                            is.close();
                             //关闭连接
                             conn.disconnect();
                             String cookieValue = null;
@@ -156,6 +157,8 @@ public class SplashActivity extends AppCompatActivity {
                     } catch (XmlPullParserException e) {
                         e.printStackTrace();
                         msg.what = 2;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                     handler.sendMessage(msg);
                 }

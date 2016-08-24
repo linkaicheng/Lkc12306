@@ -110,6 +110,7 @@ public class MyFragment extends Fragment {
                     //将输入流转成字符串“0”，或“1”
                     String response=URLConnManager.converStreamToString(inputStream);
                     result=response.substring(1,2);
+                    inputStream.close();
                 }
                // Log.e("cheng","********"+result);
                 conn.disconnect();
