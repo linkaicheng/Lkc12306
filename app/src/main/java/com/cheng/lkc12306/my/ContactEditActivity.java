@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -24,11 +26,13 @@ import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.DialogUtil;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
+import com.google.gson.Gson;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +47,34 @@ public class ContactEditActivity extends AppCompatActivity {
     private Button btnContactEditSave;
     private String action = "";//用来判断操作的类型：添加，删除，修改
     private ProgressDialog pDialog;
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(pDialog!=null){
+                pDialog.dismiss();
+            }
+            switch (msg.what) {
+                case  1:
+                    //获取服务器返回的结果
+                    String result= (String) msg.obj;
+                    //判断是修改操作还是删除操作，然后给出相应的提示
+                    String info="修改";
+                    if("remove".equals(action)){
+                        info="删除";
+                    }
+                    if("1".equals(result)){//更新成功
+                        Toast.makeText(ContactEditActivity.this, info+"成功", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }else if("-1".equals(result)){//更新失败
+                        Toast.makeText(ContactEditActivity.this, info+"失败，请重试", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case  2:
+                    Toast.makeText(ContactEditActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +113,7 @@ public class ContactEditActivity extends AppCompatActivity {
                 return;//网络不可用时直接返回，不再进行其他操作
             }
             //显示进度对话框
-            pDialog = ProgressDialog.show(ContactEditActivity.this, null, "请稍后", false, true);
+            pDialog = ProgressDialog.show(ContactEditActivity.this, null, "修改中，请稍后", false, true);
             action = "update";
             contactThread.start();
         }
@@ -100,8 +132,12 @@ public class ContactEditActivity extends AppCompatActivity {
              action:new update remove
              响应接口：0: 添加联系人已存在；1: 成功；-1: 错误
              */
+            Message msg = new Message();
+            InputStream inputStream = null;
+            HttpURLConnection conn = null;
             try {
-                HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Passenger");
+
+                conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Passenger");
                 //获取保存的cookie
                 SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
                 String cookieValue = sp.getString("cookie", "");
@@ -114,14 +150,39 @@ public class ContactEditActivity extends AppCompatActivity {
                 params.add(new BasicNameValuePair("证件号码", (String) data.get(2).get("key2")));
                 params.add(new BasicNameValuePair("乘客类型", (String) data.get(3).get("key2")));
                 params.add(new BasicNameValuePair("电话", (String) data.get(4).get("key2")));
-                params.add(new BasicNameValuePair("action", action);
+                params.add(new BasicNameValuePair("action", action));
                 URLConnManager.postParams(conn.getOutputStream(), params);
+                conn.connect();
+                //获取响应码
+                int code = conn.getResponseCode();
+                //连接成功
+                if (code == 200) {
+                    inputStream = conn.getInputStream();
+                    String response = URLConnManager.converStreamToString(inputStream);
+                    Gson gson=new Gson();
+                    String result=gson.fromJson(response,String.class);
+                    msg.what = 1;
+                    msg.obj = result;
+                } else {//连接失败
+                    msg.what = 2;
+                }
+                handler.sendMessage(msg);
             } catch (IOException e) {
+                msg.what = 2;
                 e.printStackTrace();
+            } finally {
+                // 最后关闭连接和输入流
+                try {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-//*****************************************
-            //获取响应码
-
         }
     };
 
