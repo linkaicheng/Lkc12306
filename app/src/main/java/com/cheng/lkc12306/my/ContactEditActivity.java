@@ -1,8 +1,11 @@
 package com.cheng.lkc12306.my;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -10,14 +13,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
+import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.DialogUtil;
+import com.cheng.lkc12306.utils.NetUtils;
+import com.cheng.lkc12306.utils.URLConnManager;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +40,9 @@ public class ContactEditActivity extends AppCompatActivity {
     private ListView lvContactEdit;
     List<Map<String, Object>> data;
     SimpleAdapter adapter;
+    private Button btnContactEditSave;
+    private String action = "";//用来判断操作的类型：添加，删除，修改
+    private ProgressDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +57,7 @@ public class ContactEditActivity extends AppCompatActivity {
     //初始化控件并设置监听
     private void initView() {
         lvContactEdit = (ListView) findViewById(R.id.lvContactEdit);
+        btnContactEditSave = (Button) findViewById(R.id.btnContactEditSave);
         Intent intent = getIntent();
         Map<String, Object> contact = (Map<String, Object>) intent.getSerializableExtra("contact");
         data = getData(contact);
@@ -51,8 +67,63 @@ public class ContactEditActivity extends AppCompatActivity {
                         R.id.tvContactEditValue, R.id.imContactEditFlag});
         lvContactEdit.setAdapter(adapter);
         lvContactEdit.setOnItemClickListener(new LvContactEditOnItCkListener());
-
+        //保存按钮设置点击监听
+        btnContactEditSave.setOnClickListener(new BtnContactEditSaveOnCkListener());
     }
+
+    //保存按钮的点击监听
+    private class BtnContactEditSaveOnCkListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            //判断网络是否可用
+            if (!NetUtils.check(ContactEditActivity.this)) {
+                Toast.makeText(ContactEditActivity.this, "当前网络不可用，请稍后再试", Toast.LENGTH_SHORT).show();
+                return;//网络不可用时直接返回，不再进行其他操作
+            }
+            //显示进度对话框
+            pDialog = ProgressDialog.show(ContactEditActivity.this, null, "请稍后", false, true);
+            action = "update";
+            contactThread.start();
+        }
+    }
+
+    Thread contactThread = new Thread() {
+        @Override
+        public void run() {
+            /**
+             * 添加/删除/修改联系人
+             地址 ：http:// 127.0.0.1:8080/My12306/otn/Passenger
+             请求头 ：
+             Name:cookie
+             Value:JSESSIONID=XXXXXX
+             请求数据 ：姓名，证件类型，证件号码，乘客类型，电话
+             action:new update remove
+             响应接口：0: 添加联系人已存在；1: 成功；-1: 错误
+             */
+            try {
+                HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Passenger");
+                //获取保存的cookie
+                SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+                String cookieValue = sp.getString("cookie", "");
+                //设置请求属性
+                conn.setRequestProperty("cookie", cookieValue);
+                //封装请求参数
+                List<NameValuePair> params = new ArrayList<>();
+                params.add(new BasicNameValuePair("姓名", (String) data.get(0).get("key2")));
+                params.add(new BasicNameValuePair("证件类型", (String) data.get(1).get("key2")));
+                params.add(new BasicNameValuePair("证件号码", (String) data.get(2).get("key2")));
+                params.add(new BasicNameValuePair("乘客类型", (String) data.get(3).get("key2")));
+                params.add(new BasicNameValuePair("电话", (String) data.get(4).get("key2")));
+                params.add(new BasicNameValuePair("action", action);
+                URLConnManager.postParams(conn.getOutputStream(), params);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+//*****************************************
+            //获取响应码
+
+        }
+    };
 
     //联系人列表的点击监听
     private class LvContactEditOnItCkListener implements AdapterView.OnItemClickListener {
@@ -74,18 +145,28 @@ public class ContactEditActivity extends AppCompatActivity {
 
     //修改乘客类型对话框
     private void changePassengerType(final int position) {
+        int idx = 0;
+        String keyValue = (String) data.get(position).get("key2");
+        final String[] items = new String[]{"成人", "儿童", "学生", "其他"};
+        //得到原来的值在items中对应的索引，用来作为默认选中
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].equals(keyValue)) {
+                idx = i;
+                break;
+            }
+        }
         //创建一个Builder对象
         AlertDialog.Builder builder = new AlertDialog.Builder(ContactEditActivity.this);
         //设置标题
         builder.setTitle("你选择乘客类型");
         builder.setIcon(android.R.drawable.btn_star);
-        final String[] items = new String[]{"成人", "儿童", "学生", "其他"};
+
     /*
     * 第一个参数为单选按钮的数据集合
     * 第二个为默认的勾选的项
     * 第三个参数为监听器
     * */
-        builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(items, idx, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 data.get(position).put("key2", items[which]);
@@ -98,7 +179,6 @@ public class ContactEditActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //此在此处实现取消逻辑代码
-
                 dialog.dismiss();
             }
         });

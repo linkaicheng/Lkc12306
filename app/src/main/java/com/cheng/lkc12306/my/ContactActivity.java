@@ -40,6 +40,8 @@ public class ContactActivity extends AppCompatActivity {
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            //将数据清空，然后重新装载
+            data.clear();
             if (pDialog != null) {
                 pDialog.dismiss();
             }
@@ -64,7 +66,6 @@ public class ContactActivity extends AppCompatActivity {
             }
         }
     };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,9 +129,7 @@ public class ContactActivity extends AppCompatActivity {
                 handler.sendMessage(msg);
             }
         }.start();
-
     }
-
 
 //联系人列表的点击监听
     private class lvContactOnItListener implements AdapterView.OnItemClickListener {
@@ -145,7 +144,6 @@ public class ContactActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
 
     //创建右上角添加联系人的图标
     @Override
