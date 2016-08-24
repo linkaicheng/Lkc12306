@@ -93,7 +93,7 @@ public class ContactActivity extends AppCompatActivity {
             Toast.makeText(ContactActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
         }
         //显示进度对话框
-        pDialog = ProgressDialog.show(ContactActivity.this, null, "请稍后", false, true);
+        pDialog = ProgressDialog.show(ContactActivity.this, null, "请稍候。。", false, true);
         new Thread() {
             @Override
             public void run() {

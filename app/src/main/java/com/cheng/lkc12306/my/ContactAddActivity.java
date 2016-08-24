@@ -2,12 +2,17 @@ package com.cheng.lkc12306.my;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,8 +27,18 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
+import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.DialogUtil;
+import com.cheng.lkc12306.utils.NetUtils;
+import com.cheng.lkc12306.utils.URLConnManager;
+import com.google.gson.Gson;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +52,34 @@ public class ContactAddActivity extends AppCompatActivity {
     private Button btnSave;
     private List<Map<String, Object>> data;
     SimpleAdapter adapter;
+    private ProgressDialog pDialog;
+    private String action="";//判断要执行的操作
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if(pDialog!=null){
+                pDialog.dismiss();
+            }
+            switch (msg.what) {
+                case  1:
+                    //获取服务器返回的结果
+                    String result= (String) msg.obj;
+                    if("1".equals(result)){//更新成功
+                        Toast.makeText(ContactAddActivity.this, "添加联系人成功", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }else if("-1".equals(result)){//更新失败
+                        Toast.makeText(ContactAddActivity.this, "添加联系人失败，请重试", Toast.LENGTH_SHORT).show();
+                    }else if("0".equals(result)){
+                        Toast.makeText(ContactAddActivity.this, "联系人已经存在", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case  2:
+                    Toast.makeText(ContactAddActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +132,84 @@ public class ContactAddActivity extends AppCompatActivity {
     private class BtnSaveOnCkListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            Toast.makeText(ContactAddActivity.this, "ContactAddActivity:保存", Toast.LENGTH_SHORT).show();
+            //判断网络是否可用
+            if (!NetUtils.check(ContactAddActivity.this)) {
+                Toast.makeText(ContactAddActivity.this, "当前网络不可用，请稍后再试", Toast.LENGTH_SHORT).show();
+                return;//网络不可用时直接返回，不再进行其他操作
+            }
+            //显示进度对话框
+            pDialog = ProgressDialog.show(ContactAddActivity.this, null, "正在添加联系人，请稍后", false, true);
+            action = "update";
+            contactThread.start();
         }
     }
+    //向服务器发出添加联系人的请求
+    Thread contactThread = new Thread() {
+        @Override
+        public void run() {
+            /**
+             * 添加/删除/修改联系人
+             地址 ：http:// 127.0.0.1:8080/My12306/otn/Passenger
+             请求头 ：
+             Name:cookie
+             Value:JSESSIONID=XXXXXX
+             请求数据 ：姓名，证件类型，证件号码，乘客类型，电话
+             action:new update remove
+             响应接口：0: 添加联系人已存在；1: 成功；-1: 错误
+             */
+            Message msg = new Message();
+            InputStream inputStream = null;
+            HttpURLConnection conn = null;
+            try {
+
+                conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Passenger");
+                //获取保存的cookie
+                SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+                String cookieValue = sp.getString("cookie", "");
+                //设置请求属性
+                conn.setRequestProperty("cookie", cookieValue);
+                //封装请求参数
+                List<NameValuePair> params = new ArrayList<>();
+                params.add(new BasicNameValuePair("姓名", (String) data.get(0).get("key2")));
+                params.add(new BasicNameValuePair("证件类型", (String) data.get(1).get("key2")));
+                params.add(new BasicNameValuePair("证件号码", (String) data.get(2).get("key2")));
+                params.add(new BasicNameValuePair("乘客类型", (String) data.get(3).get("key2")));
+                params.add(new BasicNameValuePair("电话", (String) data.get(4).get("key2")));
+                params.add(new BasicNameValuePair("action", action));
+                URLConnManager.postParams(conn.getOutputStream(), params);
+                conn.connect();
+                //获取响应码
+                int code = conn.getResponseCode();
+                //连接成功
+                if (code == 200) {
+                    inputStream = conn.getInputStream();
+                    String response = URLConnManager.converStreamToString(inputStream);
+                    Gson gson=new Gson();
+                    String result=gson.fromJson(response,String.class);
+                    msg.what = 1;
+                    msg.obj = result;
+                } else {//连接失败
+                    msg.what = 2;
+                }
+                handler.sendMessage(msg);
+            } catch (IOException e) {
+                msg.what = 2;
+                e.printStackTrace();
+            } finally {
+                // 最后关闭连接和输入流
+                try {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 //弹出乘客类型或证件类型的选择对话框
     private void changeType(final String title, final int position, String[] items) {
         final String[] items2;
@@ -158,7 +276,6 @@ public class ContactAddActivity extends AppCompatActivity {
             }
         });
         builder.create().show();
-
     }
 
     private List<Map<String, Object>> getData() {
