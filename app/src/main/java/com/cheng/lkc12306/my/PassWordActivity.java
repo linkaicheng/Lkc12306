@@ -27,19 +27,15 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class PassWordActivity extends AppCompatActivity {
     private EditText edtPass,edtConfirmPass;
     private Button btnPassSave;
     ProgressDialog pDialog;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pass_word);
         initView();
-
     }
     //初始化控件并为保存按钮设置监听
     private void initView(){
