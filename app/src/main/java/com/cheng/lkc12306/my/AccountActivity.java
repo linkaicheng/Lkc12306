@@ -1,8 +1,13 @@
 package com.cheng.lkc12306.my;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -15,8 +20,20 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
+import com.cheng.lkc12306.bean.Account;
+import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.DialogUtil;
+import com.cheng.lkc12306.utils.NetUtils;
+import com.cheng.lkc12306.utils.URLConnManager;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,20 +49,137 @@ public class AccountActivity extends AppCompatActivity {
     private Button btnAccountSave;
     private List<Map<String,Object>> data;
     SimpleAdapter adapter;
+    ProgressDialog pDialog;
+    private String action;//用来判断是更新账户还是获取账户信息
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            data.clear();
+            if(pDialog!=null){
+                pDialog.dismiss();
+            }
+            switch (msg.what) {
+                case  1:
+                    Account account= (Account) msg.obj;
+                    Map<String,Object> row=new HashMap<>();
+                    row.put("key1","用户名");
+                    row.put("key2",account.getUsername());
+                    row.put("key3",null);
+                    data.add(row);
+
+                    row=new HashMap<>();
+                    row.put("key1","姓名");
+                    row.put("key2",account.getName());
+                    row.put("key3",null);
+                    data.add(row);
+                    row=new HashMap<>();
+                    row.put("key1","证件类型");
+                    row.put("key2",account.getIdType());
+                    row.put("key3",null);
+                    data.add(row);
+
+                    row=new HashMap<>();
+                    row.put("key1","证件号码");
+                    row.put("key2",account.getId());
+                    row.put("key3",null);
+                    data.add(row);
+
+                    row=new HashMap<>();
+                    row.put("key1","乘客类型");
+                    row.put("key2",account.getType());
+                    row.put("key3",R.mipmap.forward_25);
+                    data.add(row);
+
+                    row=new HashMap<>();
+                    row.put("key1","电话");
+                    row.put("key2",account.getTel());
+                    row.put("key3",R.mipmap.forward_25);
+                    data.add(row);
+                    adapter.notifyDataSetChanged();
+                    break;
+                case  2:
+                        Toast.makeText(AccountActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+                case  3:
+                    Toast.makeText(AccountActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+        //判断网络是否可用
+        if (!NetUtils.check(AccountActivity.this)) {
+            Toast.makeText(AccountActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        //显示进度对话框
+        pDialog = ProgressDialog.show(AccountActivity.this, null, "请稍候", false, true);
         initView();
+        action="query";
+       new Thread(accountRunnable).start();
 
     }
+
+    Runnable accountRunnable=new Runnable() {
+        @Override
+        public void run() {
+            Message msg = new Message();
+            try {
+                HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Account");
+                //获取登陆时保存的cookie
+                SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+                String cookieValue = sp.getString("cookie", "");
+                conn.setRequestProperty("cookie", cookieValue);
+                //封装请求参数
+                List<NameValuePair> params = new ArrayList<>();
+                if("update".equals(action)){
+                    params.add(new BasicNameValuePair("乘客类型", (String) data.get(4).get("key2")));
+                    params.add(new BasicNameValuePair("电话", (String) data.get(5).get("key2")));
+                }
+                params.add(new BasicNameValuePair("action", action));
+                URLConnManager.postParams(conn.getOutputStream(), params);
+                conn.connect();
+                int code = conn.getResponseCode();
+                if (code == 200) {
+                    //获取输入流
+                    InputStream inputStream = conn.getInputStream();
+                    //将流转成字符串
+                    String response = URLConnManager.converStreamToString(inputStream);
+                    //利用Gson解析Json数据
+                    Gson gson = new Gson();
+                    Account account = gson.fromJson(response, Account.class);
+                    msg.what = 1;
+                    msg.obj = account;
+                    inputStream.close();
+                } else {
+                    msg.what = 2;
+                }
+                //断开连接
+                conn.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+                msg.what = 2;
+            }catch(JsonSyntaxException e){
+                e.printStackTrace();
+                msg.what=3;
+            }
+            handler.sendMessage(msg);
+        }
+    };
+//更新账户或获取账户
+
+
     //初始化控件，并设置监听
     private void initView(){
+        data=new ArrayList<>();
         lvAccount = (ListView) findViewById(R.id.lvAccount);
         btnAccountSave = (Button) findViewById(R.id.btnAccountSave);
-        data = getData();
         adapter = new SimpleAdapter(AccountActivity.this, data,
                 R.layout.item_my_account, new String[]{"key1", "key2", "key3"},
                 new int[]{R.id.tvAccountKey, R.id.tvAccountValue, R.id.imAccountFlag});
@@ -58,11 +192,11 @@ public class AccountActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             switch (position) {
-                case 3:
+                case 4:
                     String[] passengerItem = new String[]{"成人", "儿童", "学生", "其他"};
                     changeType("请你选择乘客类型", position, passengerItem);
                     break;
-                case 4:
+                case 5:
                     change(position, "请输电话号码");
                     break;
             }
@@ -72,7 +206,16 @@ public class AccountActivity extends AppCompatActivity {
     private class BtnAccountSaveListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            Toast.makeText(AccountActivity.this, "AccountActivity:保存", Toast.LENGTH_SHORT).show();
+            //判断网络是否可用
+            if (!NetUtils.check(AccountActivity.this)) {
+                Toast.makeText(AccountActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            //显示进度对话框
+            pDialog = ProgressDialog.show(AccountActivity.this, null, "请稍候", false, true);
+            action="update";
+            new Thread(accountRunnable).start();
         }
     }
     //弹出类型选择的对话框
@@ -142,43 +285,8 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
         builder.create().show();
-
     }
-    //数据的获取
-    private List<Map<String, Object>> getData() {
-        List<Map<String,Object>> data=new ArrayList<>();
-        Map<String,Object> row=new HashMap<>();
 
-        row.put("key1","姓名");
-        row.put("key2","林凯城");
-        row.put("key3",null);
-        data.add(row);
-
-        row=new HashMap<>();
-        row.put("key1","证件类型");
-        row.put("key2","身份证");
-        row.put("key3",null);
-        data.add(row);
-
-        row=new HashMap<>();
-        row.put("key1","证件号码");
-        row.put("key2","44541525545521");
-        row.put("key3",null);
-        data.add(row);
-
-        row=new HashMap<>();
-        row.put("key1","乘客类型");
-        row.put("key2","学生");
-        row.put("key3",R.mipmap.forward_25);
-        data.add(row);
-
-        row=new HashMap<>();
-        row.put("key1","电话");
-        row.put("key2","15587845874");
-        row.put("key3",R.mipmap.forward_25);
-        data.add(row);
-        return data;
-    }
 
     //界面左上角箭头，点击，回到上一个界面
     @Override

@@ -87,8 +87,6 @@ public class MyFragment extends Fragment {
         protected void onPreExecute() {
             //初始化操作，显示进度条
             pDialog=ProgressDialog.show(getActivity(),null,"正在退出",false,true);
-
-
         }
 
         @Override
@@ -117,7 +115,6 @@ public class MyFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return result;
         }
 

@@ -141,6 +141,15 @@ public class ContactAddActivity extends AppCompatActivity {
                 Toast.makeText(ContactAddActivity.this, "当前网络不可用，请稍后再试", Toast.LENGTH_SHORT).show();
                 return;//网络不可用时直接返回，不再进行其他操作
             }
+            //如果新建联系人时没有提供完整的信息
+            for(int i=0;i<5;i++){
+                if(data.get(i).get("key2")==null){
+                    Toast.makeText(ContactAddActivity.this, "请提供完整的联系人信息", Toast.LENGTH_SHORT).show();
+                    return;//不再执行后续代码
+                }
+            }
+
+
             //显示进度对话框
             pDialog = ProgressDialog.show(ContactAddActivity.this, null, "正在添加联系人，请稍后", false, true);
             action = "update";

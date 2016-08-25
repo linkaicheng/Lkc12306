@@ -164,8 +164,10 @@ public class ContactEditActivity extends AppCompatActivity {
                 if (code == 200) {
                     inputStream = conn.getInputStream();
                     String response = URLConnManager.converStreamToString(inputStream);
+                    //Log.e("cheng","*****************response"+response);
                     Gson gson=new Gson();
                     String result=gson.fromJson(response,String.class);
+                    //Log.e("cheng","*****************result:"+result);
                     msg.what = 1;
                     msg.obj = result;
                 } else {//连接失败

@@ -95,6 +95,8 @@ public class ContactActivity extends AppCompatActivity {
         //判断网络是否可用
         if (!NetUtils.check(ContactActivity.this)) {
             Toast.makeText(ContactActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
         //显示进度对话框
         pDialog = ProgressDialog.show(ContactActivity.this, null, "请稍候。。", false, true);
