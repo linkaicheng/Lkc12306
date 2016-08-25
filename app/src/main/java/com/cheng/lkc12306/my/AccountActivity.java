@@ -142,41 +142,7 @@ public class AccountActivity extends AppCompatActivity {
             switch (msg.what) {
                 case  1:
                     Account account= (Account) msg.obj;
-                    Map<String,Object> row=new HashMap<>();
-                    row.put("key1","用户名");
-                    row.put("key2",account.getUsername());
-                    row.put("key3",null);
-                    data.add(row);
-
-                    row=new HashMap<>();
-                    row.put("key1","姓名");
-                    row.put("key2",account.getName());
-                    row.put("key3",null);
-                    data.add(row);
-                    row=new HashMap<>();
-                    row.put("key1","证件类型");
-                    row.put("key2",account.getIdType());
-                    row.put("key3",null);
-                    data.add(row);
-
-                    row=new HashMap<>();
-                    row.put("key1","证件号码");
-                    row.put("key2",account.getId());
-                    row.put("key3",null);
-                    data.add(row);
-
-                    row=new HashMap<>();
-                    row.put("key1","乘客类型");
-                    row.put("key2",account.getType());
-                    row.put("key3",R.mipmap.forward_25);
-                    data.add(row);
-
-                    row=new HashMap<>();
-                    row.put("key1","电话");
-                    row.put("key2",account.getTel());
-                    row.put("key3",R.mipmap.forward_25);
-                    data.add(row);
-                    adapter.notifyDataSetChanged();
+                    updateView(account);
                     //更新成功时给出一个提示
                     if("update".equals(action)){
                         Toast.makeText(AccountActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
@@ -191,6 +157,45 @@ public class AccountActivity extends AppCompatActivity {
             }
         }
     };
+
+    //将更新视图的操作封装成一个方法
+    private void updateView(Account account){
+        Map<String,Object> row=new HashMap<>();
+        row.put("key1","用户名");
+        row.put("key2",account.getUsername());
+        row.put("key3",null);
+        data.add(row);
+
+        row=new HashMap<>();
+        row.put("key1","姓名");
+        row.put("key2",account.getName());
+        row.put("key3",null);
+        data.add(row);
+        row=new HashMap<>();
+        row.put("key1","证件类型");
+        row.put("key2",account.getIdType());
+        row.put("key3",null);
+        data.add(row);
+
+        row=new HashMap<>();
+        row.put("key1","证件号码");
+        row.put("key2",account.getId());
+        row.put("key3",null);
+        data.add(row);
+
+        row=new HashMap<>();
+        row.put("key1","乘客类型");
+        row.put("key2",account.getType());
+        row.put("key3",R.mipmap.forward_25);
+        data.add(row);
+
+        row=new HashMap<>();
+        row.put("key1","电话");
+        row.put("key2",account.getTel());
+        row.put("key3",R.mipmap.forward_25);
+        data.add(row);
+        adapter.notifyDataSetChanged();
+    }
     //乘客类型和电话号码的点击监听
     private class lvAccountListener implements AdapterView.OnItemClickListener{
         @Override
