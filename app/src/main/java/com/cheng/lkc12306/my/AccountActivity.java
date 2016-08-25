@@ -81,7 +81,7 @@ public class AccountActivity extends AppCompatActivity {
         //保存按钮
         btnAccountSave.setOnClickListener(new BtnAccountSaveListener());
     }
-//更新账户或获取账户,使用Runnable的形式，每次调用都会开启一个新线程
+    //更新账户或获取账户,使用Runnable的形式，每次调用都会开启一个新线程
     Runnable accountRunnable=new Runnable() {
         @Override
         public void run() {
@@ -292,7 +292,6 @@ public class AccountActivity extends AppCompatActivity {
         });
         builder.create().show();
     }
-
     //界面左上角箭头，点击，回到上一个界面
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
