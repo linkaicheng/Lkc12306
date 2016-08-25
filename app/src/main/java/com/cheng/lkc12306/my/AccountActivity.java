@@ -39,10 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
-
-
 public class AccountActivity extends AppCompatActivity {
     private ListView lvAccount;
     //保存按钮
@@ -51,9 +47,94 @@ public class AccountActivity extends AppCompatActivity {
     SimpleAdapter adapter;
     ProgressDialog pDialog;
     private String action;//用来判断是更新账户还是获取账户信息
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        //使界面左上方出现回退箭头
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_account);
+        //判断网络是否可用
+        if (!NetUtils.check(AccountActivity.this)) {
+            Toast.makeText(AccountActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        //显示进度对话框
+        pDialog = ProgressDialog.show(AccountActivity.this, null, "请稍候", false, true);
+        initView();
+        //开启一个线程，执行查询我的账户操作
+        action="query";
+        new Thread(accountRunnable).start();
+    }
+    //初始化控件，并设置监听
+    private void initView(){
+        data=new ArrayList<>();
+        lvAccount = (ListView) findViewById(R.id.lvAccount);
+        btnAccountSave = (Button) findViewById(R.id.btnAccountSave);
+        adapter = new SimpleAdapter(AccountActivity.this, data,
+                R.layout.item_my_account, new String[]{"key1", "key2", "key3"},
+                new int[]{R.id.tvAccountKey, R.id.tvAccountValue, R.id.imAccountFlag});
+        lvAccount.setAdapter(adapter);
+        //我的账户信息列表的点击监听
+        lvAccount.setOnItemClickListener(new lvAccountListener());
+        //保存按钮
+        btnAccountSave.setOnClickListener(new BtnAccountSaveListener());
+    }
+//更新账户或获取账户,使用Runnable的形式，每次调用都会开启一个新线程
+    Runnable accountRunnable=new Runnable() {
+        @Override
+        public void run() {
+            Message msg = new Message();
+            try {
+                HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Account");
+                //获取登陆时保存的cookie
+                SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
+                String cookieValue = sp.getString("cookie", "");
+                conn.setRequestProperty("cookie", cookieValue);
+                //封装请求参数
+                List<NameValuePair> params = new ArrayList<>();
+                //判断如果是更新账户的操作，需要将乘客类型和电话作为请求参数
+                //如果是获取账户的操作，则只需要action作为请求参数
+                if("update".equals(action)){
+                    params.add(new BasicNameValuePair("乘客类型", (String) data.get(4).get("key2")));
+                    params.add(new BasicNameValuePair("电话", (String) data.get(5).get("key2")));
+                }
+                params.add(new BasicNameValuePair("action", action));
+                URLConnManager.postParams(conn.getOutputStream(), params);
+                conn.connect();
+                int code = conn.getResponseCode();
+                if (code == 200) {
+                    //获取输入流
+                    InputStream inputStream = conn.getInputStream();
+                    //将流转成字符串
+                    String response = URLConnManager.converStreamToString(inputStream);
+                    //利用Gson解析Json数据
+                    Gson gson = new Gson();
+                    Account account = gson.fromJson(response, Account.class);
+                    msg.what = 1;
+                    msg.obj = account;
+                    inputStream.close();
+                } else {
+                    msg.what = 2;
+                }
+                //断开连接
+                conn.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+                msg.what = 2;
+            }catch(JsonSyntaxException e){
+                e.printStackTrace();
+                msg.what=3;
+            }
+            handler.sendMessage(msg);
+        }
+    };
+    //获取账户或更新账户后的更新视图的操作
     Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            //清空data数据，然后重新添加，避免界面出现双份的数据
             data.clear();
             if(pDialog!=null){
                 pDialog.dismiss();
@@ -96,9 +177,13 @@ public class AccountActivity extends AppCompatActivity {
                     row.put("key3",R.mipmap.forward_25);
                     data.add(row);
                     adapter.notifyDataSetChanged();
+                    //更新成功时给出一个提示
+                    if("update".equals(action)){
+                        Toast.makeText(AccountActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case  2:
-                        Toast.makeText(AccountActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
                     break;
                 case  3:
                     Toast.makeText(AccountActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
@@ -106,87 +191,6 @@ public class AccountActivity extends AppCompatActivity {
             }
         }
     };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account);
-        //判断网络是否可用
-        if (!NetUtils.check(AccountActivity.this)) {
-            Toast.makeText(AccountActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        //显示进度对话框
-        pDialog = ProgressDialog.show(AccountActivity.this, null, "请稍候", false, true);
-        initView();
-        action="query";
-       new Thread(accountRunnable).start();
-
-    }
-
-    Runnable accountRunnable=new Runnable() {
-        @Override
-        public void run() {
-            Message msg = new Message();
-            try {
-                HttpURLConnection conn = URLConnManager.getHttpURLConnection(Constant.HOST + "/otn/Account");
-                //获取登陆时保存的cookie
-                SharedPreferences sp = getSharedPreferences("user", Context.MODE_PRIVATE);
-                String cookieValue = sp.getString("cookie", "");
-                conn.setRequestProperty("cookie", cookieValue);
-                //封装请求参数
-                List<NameValuePair> params = new ArrayList<>();
-                if("update".equals(action)){
-                    params.add(new BasicNameValuePair("乘客类型", (String) data.get(4).get("key2")));
-                    params.add(new BasicNameValuePair("电话", (String) data.get(5).get("key2")));
-                }
-                params.add(new BasicNameValuePair("action", action));
-                URLConnManager.postParams(conn.getOutputStream(), params);
-                conn.connect();
-                int code = conn.getResponseCode();
-                if (code == 200) {
-                    //获取输入流
-                    InputStream inputStream = conn.getInputStream();
-                    //将流转成字符串
-                    String response = URLConnManager.converStreamToString(inputStream);
-                    //利用Gson解析Json数据
-                    Gson gson = new Gson();
-                    Account account = gson.fromJson(response, Account.class);
-                    msg.what = 1;
-                    msg.obj = account;
-                    inputStream.close();
-                } else {
-                    msg.what = 2;
-                }
-                //断开连接
-                conn.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-                msg.what = 2;
-            }catch(JsonSyntaxException e){
-                e.printStackTrace();
-                msg.what=3;
-            }
-            handler.sendMessage(msg);
-        }
-    };
-//更新账户或获取账户
-
-
-    //初始化控件，并设置监听
-    private void initView(){
-        data=new ArrayList<>();
-        lvAccount = (ListView) findViewById(R.id.lvAccount);
-        btnAccountSave = (Button) findViewById(R.id.btnAccountSave);
-        adapter = new SimpleAdapter(AccountActivity.this, data,
-                R.layout.item_my_account, new String[]{"key1", "key2", "key3"},
-                new int[]{R.id.tvAccountKey, R.id.tvAccountValue, R.id.imAccountFlag});
-        lvAccount.setAdapter(adapter);
-        lvAccount.setOnItemClickListener(new lvAccountListener());
-        btnAccountSave.setOnClickListener(new BtnAccountSaveListener());
-    }
     //乘客类型和电话号码的点击监听
     private class lvAccountListener implements AdapterView.OnItemClickListener{
         @Override
@@ -214,6 +218,7 @@ public class AccountActivity extends AppCompatActivity {
             }
             //显示进度对话框
             pDialog = ProgressDialog.show(AccountActivity.this, null, "请稍候", false, true);
+            //开启一个新线程，执行更新账户的操作
             action="update";
             new Thread(accountRunnable).start();
         }
@@ -227,18 +232,17 @@ public class AccountActivity extends AppCompatActivity {
         builder.setTitle(title);
         builder.setIcon(android.R.drawable.btn_star);
         items2 = items;
-    /*
-    * 第一个参数为单选按钮的数据集合
-    * 第二个为默认的勾选的项
-    * 第三个参数为监听器
-    * */
+        /*
+          * 第一个参数为单选按钮的数据集合
+          * 第二个为默认的勾选的项
+          * 第三个参数为监听器
+         * */
         builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 data.get(position).put("key2",items2[which]);
                 adapter.notifyDataSetChanged();
                 dialog.dismiss();
-
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -253,7 +257,6 @@ public class AccountActivity extends AppCompatActivity {
     }
     //弹出号码编辑框
     private void change(final int position,final String title){
-
         final AlertDialog.Builder builder=new AlertDialog.Builder(this);
         builder.setTitle(title);
         builder.setIcon(android.R.drawable.btn_star);
@@ -270,11 +273,9 @@ public class AccountActivity extends AppCompatActivity {
                     edtInput.setError(title);
                     edtInput.requestFocus();
                 }else{
-
                     DialogUtil.dialogClose(dialog,true);
                     data.get(position).put("key2",input);
                     adapter.notifyDataSetChanged();
-
                 }
             }
         });
@@ -286,7 +287,6 @@ public class AccountActivity extends AppCompatActivity {
         });
         builder.create().show();
     }
-
 
     //界面左上角箭头，点击，回到上一个界面
     @Override

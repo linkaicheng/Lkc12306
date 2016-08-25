@@ -38,38 +38,7 @@ public class ContactActivity extends AppCompatActivity {
     List<Map<String, Object>> data;
     private ProgressDialog pDialog;
     SimpleAdapter adapter;
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            //将数据清空，然后重新装载
-            data.clear();
-            if (pDialog != null) {
-                pDialog.dismiss();
-            }
-            switch (msg.what) {
-                case 1:
-                    //获取联系人列表
-                    Passenger[] passengers= (Passenger[]) msg.obj;
-                    //将联系人列表更新到界面
-                    for(Passenger passenger:passengers){
-                        Map<String,Object> row=new HashMap<>();
-                        row.put("name",passenger.getName()+"("+passenger.getType()+")");
-                        row.put("idCard",passenger.getIdType()+":"+passenger.getId());
-                        row.put("tel","电话号码:"+passenger.getTel());
-                        data.add(row);
-                    }
-                    //每次回到联系人界面都更新一下数据
-                    adapter.notifyDataSetChanged();
-                    break;
-                case 2:
-                    Toast.makeText(ContactActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
-                    break;
-                case 3:
-                    Toast.makeText(ContactActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +108,38 @@ public class ContactActivity extends AppCompatActivity {
             }
         }.start();
     }
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            //将数据清空，然后重新装载
+            data.clear();
+            if (pDialog != null) {
+                pDialog.dismiss();
+            }
+            switch (msg.what) {
+                case 1:
+                    //获取联系人列表
+                    Passenger[] passengers= (Passenger[]) msg.obj;
+                    //将联系人列表更新到界面
+                    for(Passenger passenger:passengers){
+                        Map<String,Object> row=new HashMap<>();
+                        row.put("name",passenger.getName()+"("+passenger.getType()+")");
+                        row.put("idCard",passenger.getIdType()+":"+passenger.getId());
+                        row.put("tel","电话号码:"+passenger.getTel());
+                        data.add(row);
+                    }
+                    //每次回到联系人界面都更新一下数据
+                    adapter.notifyDataSetChanged();
+                    break;
+                case 2:
+                    Toast.makeText(ContactActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    Toast.makeText(ContactActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
 //联系人列表的点击监听
     private class lvContactOnItListener implements AdapterView.OnItemClickListener {
