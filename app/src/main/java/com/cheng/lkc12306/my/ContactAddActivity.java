@@ -32,6 +32,7 @@ import com.cheng.lkc12306.utils.DialogUtil;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -75,6 +76,9 @@ public class ContactAddActivity extends AppCompatActivity {
                     break;
                 case  2:
                     Toast.makeText(ContactAddActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+                case  3:
+                    Toast.makeText(ContactAddActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -194,6 +198,9 @@ public class ContactAddActivity extends AppCompatActivity {
                 handler.sendMessage(msg);
             } catch (IOException e) {
                 msg.what = 2;
+                e.printStackTrace();
+            }catch(JsonSyntaxException e){
+                msg.what=3;
                 e.printStackTrace();
             } finally {
                 // 最后关闭连接和输入流

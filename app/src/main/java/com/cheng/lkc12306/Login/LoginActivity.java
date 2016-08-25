@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 //
                 case 2:
-                    Toast.makeText(LoginActivity.this, "服务器忙。。。。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "服务器忙,请稍后再试", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -111,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         tvLostPassword.setText(Html
                 .fromHtml("<a href=\"http://www.12306.cn\">忘记密码？</a>"));
         tvLostPassword.setMovementMethod(LinkMovementMethod.getInstance());
-//为登录按钮设置监听
+        //为登录按钮设置监听
         btnLogin.setOnClickListener(new BtnLoginOnCkListener());
     }
 

@@ -1,6 +1,5 @@
 package com.cheng.lkc12306.login;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,13 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SplashActivity extends AppCompatActivity {
-    private ProgressDialog pDialog;
     private Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            if(pDialog!=null){
-                pDialog.dismiss();
-            }
           switch (msg.what) {
               //连接服务器成功
               case  1:
@@ -100,9 +95,12 @@ public class SplashActivity extends AppCompatActivity {
             //判断网络是否有连接
             if (!NetUtils.check(SplashActivity.this)) {
                 Toast.makeText(SplashActivity.this, "当前网络不可用", Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(SplashActivity.this,LoginActivity.class);
+                startActivity(intent);
+                 finish();
                 return;//返回，不执行后续代码
             }
-            pDialog=ProgressDialog.show(SplashActivity.this,null,"自动登录中，请稍后",false,true);
+
             //创建子线程，进行登录处理
             new Thread() {
                 @Override
@@ -165,6 +163,5 @@ public class SplashActivity extends AppCompatActivity {
 
             }.start();
         }
-
     }
 }

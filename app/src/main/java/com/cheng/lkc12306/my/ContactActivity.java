@@ -22,6 +22,7 @@ import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,9 @@ public class ContactActivity extends AppCompatActivity {
                     break;
                 case 2:
                     Toast.makeText(ContactActivity.this, "服务器错误，请重试", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    Toast.makeText(ContactActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -125,6 +129,9 @@ public class ContactActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                     msg.what = 2;
+                }catch(JsonSyntaxException e){
+                    e.printStackTrace();
+                    msg.what=3;
                 }
                 handler.sendMessage(msg);
             }
