@@ -41,12 +41,14 @@ public class PassWordActivity extends AppCompatActivity {
         initView();
 
     }
+    //初始化控件并为保存按钮设置监听
     private void initView(){
         edtPass = (EditText)findViewById(R.id.edtPass);
         edtConfirmPass = (EditText)findViewById(R.id.edtConfirmPass);
         btnPassSave = (Button)findViewById(R.id.btnPassSave);
         btnPassSave.setOnClickListener(new BtnPassSaveOnCkListener());
     }
+    //保存按钮的点击监听，开启一个线程向服务器提出修改密码的请求
     private class BtnPassSaveOnCkListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -119,18 +121,18 @@ public class PassWordActivity extends AppCompatActivity {
                     }
                     String result= (String) msg.obj;
                     switch (msg.what) {
-                        case  1:
-                            if("1".equals(result)){
+                        case  1://服务器连接成功
+                            if("1".equals(result)){//服务器返回1，修改成功
                                 Toast.makeText(PassWordActivity.this, "密码更改成功", Toast.LENGTH_SHORT).show();
                                 finish();
-                            }else if("0".equals(result)){
+                            }else if("0".equals(result)){//服务器返回0，修改失败
                                 Toast.makeText(PassWordActivity.this, "密码更改失败", Toast.LENGTH_SHORT).show();
                             }
                             break;
-                        case  2:
+                        case  2://服务器连接失败
                             Toast.makeText(PassWordActivity.this, "服务器错误，请稍候再试", Toast.LENGTH_SHORT).show();
                             break;
-                        case  3:
+                        case  3://json解析异常
                             Toast.makeText(PassWordActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
                             break;
                     }

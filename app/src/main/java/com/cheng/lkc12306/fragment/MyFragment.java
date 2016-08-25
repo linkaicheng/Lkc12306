@@ -52,6 +52,9 @@ public class MyFragment extends Fragment {
     //退出登录按钮
     private Button btnLogout;
     private ProgressDialog pDialog;
+    //在点击我的密码的时候会弹出一个对话框，要求输入原来的密码，
+    // 因为要传给子线程所以定义一个全局变量oldPassword
+    //去保存输入的密码
     private String oldPassword;
 
     @Nullable
@@ -93,6 +96,7 @@ public class MyFragment extends Fragment {
 
         }
     }
+    //退出登录的异步任务
     private class  LogoutTask extends AsyncTask<String,Void,String>{
         @Override
         protected void onPreExecute() {
@@ -177,30 +181,30 @@ public class MyFragment extends Fragment {
                     startActivity(intent);
                     break;
                 case 2:
-                    //点击我的密码，弹出对话框，要求输入原来的密码，进行确认
+                    //点击我的密码，弹出对话框，要求输入原来的密码，向服务器进行确认
                     confirmOldPassword();
                     break;
             }
 
         }
     }
+    //验证原来的密码是否正确
     private void confirmOldPassword(){
-        //创建一个Builder对象
+        //创建一个对话框用来输入原来的密码
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //设置标题
         builder.setTitle("请输入原密码");
         builder.setIcon(android.R.drawable.btn_star);
-        //定义一个输入框
         final EditText edtOldPassword= new EditText(getActivity());
-        //将输入框放入到对框中
         builder.setView(edtOldPassword);
 
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //在此处实现确定逻辑代码
+                //将输入的密码保存在全局变量oldPassword中，供子线程使用
                 oldPassword=edtOldPassword.getText().toString();
+                //显示一个进度对话框
                 pDialog=ProgressDialog.show(getActivity(),null,"验证密码中，请稍候",false,true);
+                //开启一个子线程，执行向服务器查询密码的操作
                 new Thread(confirmOldPassRunnable).start();
                 dialog.dismiss();
             }
@@ -271,20 +275,21 @@ Handler handler=new Handler(){
         }
         String result= (String) msg.obj;
         switch (msg.what) {
-            case  1:
-                if("1".equals(result)){
+            case  1://连接服务器成功
+                if("1".equals(result)){//服务器返回1,验证成功
                     Toast.makeText(getActivity(), "验证成功", Toast.LENGTH_SHORT).show();
+                    //跳转到密码修改界面
                     Intent intent=new Intent(getActivity(), PassWordActivity.class);
                     startActivity(intent);
 
-                }else if("0".equals(result)){
+                }else if("0".equals(result)){//服务器返回0，密码错误
                     Toast.makeText(getActivity(), "密码验证错误", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case  2:
+            case  2://连接服务器失败或其他错误
         Toast.makeText(getActivity(), "服务器错误，请稍候再试", Toast.LENGTH_SHORT).show();
                 break;
-            case  3:
+            case  3://JsonSyntaxException
                 Toast.makeText(getActivity(), "请重新登录", Toast.LENGTH_SHORT).show();
                 break;
 
