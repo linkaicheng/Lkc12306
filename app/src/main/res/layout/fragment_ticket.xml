@@ -125,7 +125,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="查询"
-                android:id="@+id/btnSearch"
+                android:id="@+id/btnQuery"
                 android:textColor="@color/white"
                 android:textSize="25sp"
                 android:background="@color/skyblue"
@@ -169,7 +169,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="北京-大连"
-                android:id="@+id/tvSearchHistoryShow1"
+                android:id="@+id/tvQueryHistory1"
                     android:textSize="25sp"
                     android:layout_margin="15dp"
                 />
@@ -177,7 +177,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="上海-大连"
-                    android:id="@+id/tvSearchHistoryShow2"
+                    android:id="@+id/tvQueryHistory2"
                     android:textSize="25sp"
                     android:layout_margin="15dp"
 

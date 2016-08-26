@@ -1,22 +1,28 @@
 package com.cheng.lkc12306.fragment;
 
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
+import com.cheng.lkc12306.db.HistotyHelper;
 import com.cheng.lkc12306.stationlist.StationListActivity;
 
 import java.util.Calendar;
@@ -26,8 +32,10 @@ import java.util.Calendar;
  * Created by cheng on 2016/8/17.
  */
 public class TicketFragment extends Fragment {
-    private TextView tvStationFrom, tvStationTo,tvArrivalTimeShow;
+    private TextView tvStationFrom, tvStationTo,tvArrivalTimeShow,tvQueryHistory1,
+    tvQueryHistory2;
     private ImageView imExchange;
+    private Button btnQuery;
 
     @Nullable
     @Override
@@ -42,22 +50,74 @@ public class TicketFragment extends Fragment {
         initView();
 
     }
+
     //初始化按钮，并为按钮设置监听
     private void initView(){
         tvStationFrom = (TextView) getActivity().findViewById(R.id.tvStationFrom);
         tvStationTo = (TextView) getActivity().findViewById(R.id.tvStationTo);
         imExchange = (ImageView) getActivity().findViewById(R.id.imExchange);
         tvArrivalTimeShow = (TextView)getActivity().findViewById(R.id.tvArrivalTimeShow);
+        tvQueryHistory1 = (TextView) getActivity().findViewById(R.id.tvQueryHistory1);
+        tvQueryHistory2 = (TextView) getActivity().findViewById(R.id.tvQueryHistory2);
+        btnQuery = (Button) getActivity().findViewById(R.id.btnQuery);
 
         tvStationFrom.setOnClickListener(new TvStationFromListener());
         tvStationTo.setOnClickListener(new TvStationToListener());
         imExchange.setOnClickListener(new ImExchangeListener());
         //选择日期
-        tvArrivalTimeShow.setOnClickListener(new tvArrivalTimeShowListener());
+        tvArrivalTimeShow.setOnClickListener(new TvArrivalTimeShowListener());
+        btnQuery.setOnClickListener(new BtnQueryOnCkListener());
+        tvQueryHistory1.setOnClickListener(new TvQueryHistoryOnCkListener());
+        tvQueryHistory2.setOnClickListener(new TvQueryHistoryOnCkListener());
     }
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        HistotyHelper helper=new HistotyHelper(getActivity());
+        SQLiteDatabase db=helper.getReadableDatabase();
+        Cursor cursor=db.query("history",null,null,null,null,null,"id desc","2");
+        if(cursor.moveToNext()){
+            tvQueryHistory1.setText(cursor.getString(cursor.getColumnIndex("rec")));
+        }
+        if(cursor.moveToNext()){
+            tvQueryHistory2.setText(cursor.getString(cursor.getColumnIndex("rec")));
+        }
+        cursor.close();
+        db.close();
+        helper.close();
+    }
+    private class TvQueryHistoryOnCkListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            String str="";
+            switch (v.getId()) {
+                case  R.id.tvQueryHistory1:
+                    str=tvQueryHistory1.getText().toString();
+                    break;
+                case  R.id.tvQueryHistory2:
+                    str=tvQueryHistory2.getText().toString();
+                    break;
+            }
+            if(!TextUtils.isEmpty(str)){
+                tvStationFrom.setText(str.split("-")[0]);
+                tvStationTo.setText(str.split("-")[1]);
+            }
+        }
+    }
+private class BtnQueryOnCkListener implements View.OnClickListener{
+    @Override
+    public void onClick(View v) {
+HistotyHelper helper=new HistotyHelper(getActivity());
+        SQLiteDatabase db=helper.getWritableDatabase();
+        ContentValues values=new ContentValues();
+        values.put("rec",tvStationFrom.getText().toString()+"-"+tvStationTo.getText().toString());
+        db.insert("history",null,values);
+        db.close();
+        helper.close();
+    }
+}
     //日期的点击监听
-    private class tvArrivalTimeShowListener implements View.OnClickListener{
+    private class TvArrivalTimeShowListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
             Calendar calendar=Calendar.getInstance();
