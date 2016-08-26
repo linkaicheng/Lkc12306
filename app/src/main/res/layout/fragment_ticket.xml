@@ -96,7 +96,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="到达时间"
+                android:text="出发日期"
                 android:id="@+id/tvArrivalTime"
                 android:layout_weight="1"
                 android:textSize="20sp"
@@ -106,7 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2014-7-1 周二"
-                android:id="@+id/tvArrivalTimeShow"
+                android:id="@+id/tvTicketDateFrom"
                 android:layout_weight="1"
                 android:gravity="right"
                 android:textSize="20sp"

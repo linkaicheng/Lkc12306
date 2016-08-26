@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created by cheng on 2016/8/26.
+ * 	创建history.db数据库，保存查询的历史记录
  */
 public class HistotyHelper extends SQLiteOpenHelper {
     private static final String DATABASENAME="history.db";
