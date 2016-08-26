@@ -6,12 +6,12 @@ import android.widget.TextView;
 
 import com.cheng.lkc12306.R;
 
-public class SearchResultActivity extends AppCompatActivity {
+public class TicketResultStep1Activity extends AppCompatActivity {
 private TextView tvDayBefore,tvDayAfter,tvTicket;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_result);
+        setContentView(R.layout.activity_ticket_result_step1);
         initView();
     }
     private void initView(){

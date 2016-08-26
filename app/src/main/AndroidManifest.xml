@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".login.LoginActivity" />
-        <activity android:name=".ticket.SearchResultActivity"></activity>
+        <activity android:name=".ticket.TicketResultStep1Activity"></activity>
     </application>
 
 </manifest>
