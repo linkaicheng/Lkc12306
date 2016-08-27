@@ -65,14 +65,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="D5"
-            android:id="@+id/tvTicketResultStep2Info1"
+            android:id="@+id/tvStep2TrainNo"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_marginRight="10dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="07:05-11:55,历时4时50分"
-            android:id="@+id/tvTicketResultStep2Info2" />
+            android:id="@+id/tvStep2DurationTime" />
 
     </LinearLayout>
 
