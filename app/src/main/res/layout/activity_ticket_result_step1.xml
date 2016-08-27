@@ -1,70 +1,63 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ticket.TicketResultStep1Activity">
+    tools:context="com.cheng.lkc12306.ticket.TicketResultStep1Activity" >
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:weightSum="1">
+        android:layout_height="50dp"
+        android:gravity="center" >
+
         <TextView
-            android:layout_width="38dp"
+            android:id="@+id/tvTicketResultStep1Before"
+            android:layout_width="80dp"
             android:layout_height="match_parent"
-            android:text="前一天"
+            android:background="@color/blue"
             android:gravity="center"
-            android:textColor="@color/white"
-            android:id="@+id/tvDayBefore"
-            android:background="@color/deepskyblue"
-            android:layout_weight="0.16" />
+            android:text="前一天"
+            android:textColor="@color/white" />
+
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/powderblue"
-            android:layout_weight="0.68">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical" >
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tvTicketResultStep1DateTitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2014-7-1 周二"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:gravity="center"
-                android:id="@+id/tvDate"
-                 />
+                android:text="2014-8-18 周一"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tvTicketResultStep1StationTitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="北京->大连"
-                android:gravity="center"
-                android:id="@+id/tvTicket"
-                />
+                android:text="北京-大连"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTicketResultStep1After"
+            android:layout_width="80dp"
             android:layout_height="match_parent"
-            android:text="后一天"
-            android:id="@+id/tvDayAfter"
+            android:background="@color/blue"
             android:gravity="center"
-            android:textColor="@color/white"
-           android:background="@color/deepskyblue"
-            android:layout_weight="0.16" />
-
-
+            android:text="后一天"
+            android:textColor="@color/white" />
 
     </LinearLayout>
 
     <ListView
+        android:id="@+id/lvTicketResultStep1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/lvTicketInfo"
-        android:layout_gravity="center_horizontal" />
-
+        android:layout_height="match_parent" >
+    </ListView>
 
 </LinearLayout>

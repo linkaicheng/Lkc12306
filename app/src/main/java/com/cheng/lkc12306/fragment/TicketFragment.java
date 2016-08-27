@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.db.HistotyHelper;
 import com.cheng.lkc12306.stationlist.StationListActivity;
+import com.cheng.lkc12306.ticket.TicketResultStep1Activity;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -141,6 +142,13 @@ public class TicketFragment extends Fragment {
             db.insert("history", null, values);
             db.close();
             helper.close();
+            //到车站查询结果界面，需要将出发车站，目的地车站，出发日期等信息带过去
+            Intent intent=new Intent(getActivity(), TicketResultStep1Activity.class);
+            intent.putExtra("ticketStationFrom",tvStationFrom.getText().toString());
+            intent.putExtra("ticketStationTo",tvStationTo.getText().toString());
+            intent.putExtra("ticketDateFrom",tvTicketDateFrom.getText().toString());
+            startActivity(intent);
+
         }
     }
 
@@ -151,7 +159,7 @@ public class TicketFragment extends Fragment {
             //获取原来的日期作为日期对话框的参数默认选中
             String oldDateFrom = tvTicketDateFrom.getText().toString();
             int oldYear = Integer.parseInt(oldDateFrom.split("-")[0]);
-            int oldMonth = Integer.parseInt(oldDateFrom.split("-")[1]);
+            int oldMonth = Integer.parseInt(oldDateFrom.split("-")[1])-1;
             int oldday = Integer.parseInt(oldDateFrom.split("-")[2].split(" ")[0]);
             new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                 @Override
@@ -187,13 +195,10 @@ public class TicketFragment extends Fragment {
                 public void onAnimationStart(Animation animation) {
 
                 }
-
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     tvStationTo.setText(stationFrom);
-
                 }
-
                 @Override
                 public void onAnimationRepeat(Animation animation) {
 
@@ -209,17 +214,13 @@ public class TicketFragment extends Fragment {
             animaTo.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-
                 }
-
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     tvStationFrom.setText(stationTo);
                 }
-
                 @Override
                 public void onAnimationRepeat(Animation animation) {
-
                 }
             });
             tvStationFrom.startAnimation(animaFrom);
@@ -227,7 +228,7 @@ public class TicketFragment extends Fragment {
         }
     }
 
-    //车站选择的点击监听
+    //出发车站选择的点击监听
     private class TvStationFromListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -235,7 +236,7 @@ public class TicketFragment extends Fragment {
             startActivityForResult(intent, 100);
         }
     }
-
+//目的地车站的点击监听
     private class TvStationToListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
