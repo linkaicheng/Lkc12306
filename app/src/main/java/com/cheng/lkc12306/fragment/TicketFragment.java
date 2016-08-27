@@ -105,6 +105,7 @@ public class TicketFragment extends Fragment {
         if (cursor.moveToNext()) {
             tvQueryHistory2.setText(cursor.getString(cursor.getColumnIndex("rec")));
         }
+
         cursor.close();
         db.close();
         helper.close();

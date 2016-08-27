@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -97,7 +98,25 @@ public class TicketResultStep1Activity extends AppCompatActivity {
         String startTrainDate = dateFrom.split(" ")[0];
         //异步任务方式从服务器获取数据
         new Step1Task(startTrainDate).execute();
+        lvTicketResultStep1.setOnItemClickListener(new LvTicketResultSetp1OnItListener());
 
+    }
+    //列车列表的点击监听
+    private class LvTicketResultSetp1OnItListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            //跳转到显示列车详细信息的界面，并携带出发站点，目的地，出发时间，列车编号
+            Intent intent=new Intent(TicketResultStep1Activity.this,TicketResultStep2Activity.class);
+            String fromStationName=stationFrom;
+            String toStationName=stationTo;
+            String startTrainDate=tvTicketResultStep1DateTitle.getText().toString();
+            String trainNo=(String)data.get(position).get("trainNo");
+            intent.putExtra("fromStationName",fromStationName);
+            intent.putExtra("toStationName",toStationName);
+            intent.putExtra("startTrainDate",startTrainDate);
+            intent.putExtra("trainNo",trainNo);
+            startActivity(intent);
+        }
     }
 
     //执行从服务器获取数据的异步任务
