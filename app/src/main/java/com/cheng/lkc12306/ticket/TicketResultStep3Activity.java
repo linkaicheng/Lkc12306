@@ -24,6 +24,7 @@ public class TicketResultStep3Activity extends AppCompatActivity {
     private ListView lvStep3;
     private List<Map<String, Object>> data = null;
     private Adapter adapter = null;
+    final  int REQUESTCODE=1;
 
 
     @Override
@@ -149,7 +150,19 @@ public class TicketResultStep3Activity extends AppCompatActivity {
     private class TvStep3AddPassengerListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            Intent intent=new Intent(TicketResultStep3Activity.this,TicketResultStep3AddPassengerActivity.class);
+            startActivityForResult(intent,REQUESTCODE);
+        }
+
+    }
+//处理添加联系人返回的数据
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUESTCODE&&resultCode==RESULT_OK){
+            if(data!=null){
+
+            }
         }
     }
-
 }
