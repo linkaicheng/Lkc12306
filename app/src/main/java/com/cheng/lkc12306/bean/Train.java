@@ -18,6 +18,23 @@ public class Train {
     private String startTrainDate;
     private Map<String,Seat> seats;
 
+    @Override
+    public String toString() {
+        return "Train{" +
+                "trainNo='" + trainNo + '\'' +
+                ", startStationName='" + startStationName + '\'' +
+                ", endStationName='" + endStationName + '\'' +
+                ", fromStationName='" + fromStationName + '\'' +
+                ", toStationName='" + toStationName + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", arriveTime='" + arriveTime + '\'' +
+                ", dayDifference=" + dayDifference +
+                ", durationTime='" + durationTime + '\'' +
+                ", startTrainDate='" + startTrainDate + '\'' +
+                ", seats=" + seats +
+                '}';
+    }
+
     public String getTrainNo() {
         return trainNo;
     }

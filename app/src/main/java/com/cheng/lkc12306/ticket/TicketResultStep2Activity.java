@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ public class TicketResultStep2Activity extends AppCompatActivity {
     private ProgressDialog pDialog=null;
     //自定义的适配器
     private Adapter adapter=null;
+    //列车编号和历时
     private TextView tvStep2TrainNo,tvStep2DurationTime;
 
 
@@ -61,8 +64,6 @@ public class TicketResultStep2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ticket_result_step2);
         initView();
-
-
     }
 
     //初始或控件，并设置监听
@@ -77,9 +78,13 @@ public class TicketResultStep2Activity extends AppCompatActivity {
 
         //获取上一界面TicketResultStep1Activity带过来的数据
         Intent intent = getIntent();
+        //获取出发站
         stationFrom = intent.getStringExtra("fromStationName");
+        //获取到达站
         stationTo = intent.getStringExtra("toStationName");
+        //获取列车编号
         trainNo = intent.getStringExtra("trainNo");
+        //车发时间
         String dateFrom = intent.getStringExtra("startTrainDate");
         //显示出发地目的地，出发日期
         tvTicketResultStep2StationTitle.setText(stationFrom + "-" + stationTo);
@@ -97,12 +102,16 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             Toast.makeText(TicketResultStep2Activity.this, "当前网络不可用", Toast.LENGTH_SHORT).show();
             return;
         }
+        //获取截去星期后的日期，传给异步任务
         String startTrainDate =dateFrom.split(" ")[0];
+        //开启异步任务，向服务器请求数据
         new Step2Task(startTrainDate).execute();
 
-
     }
-    //执行获取列车详细信息的异步任务
+
+    /**
+     * 执行获取列车详细信息的异步任务
+     */
     private class Step2Task extends AsyncTask<Void,Void,Object >{
         String startTrainDate;
 
@@ -114,9 +123,13 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             super.onPreExecute();
             //弹出进度对话框
             pDialog=ProgressDialog.show(TicketResultStep2Activity.this,null,"获取列车信息中，请稍候",false,true);
-
         }
 
+        /**
+         * 执行网络连接，获取数据的操作，将得到的结果返回给onPostExecute方法处理
+         * @param params
+         * @return
+         */
         @Override
         protected Object doInBackground(Void... params) {
             String result=null;
@@ -180,6 +193,10 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             return result;
         }
 
+        /**
+         * 处理doInBackground传来的结果，并解析数据，填充数据源，更新视图
+         * @param o
+         */
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
@@ -190,19 +207,21 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             if(pDialog!=null){
                 pDialog.dismiss();
             }
-
+            //如果查询到的是空
+            if(o==null){
+                Toast.makeText(TicketResultStep2Activity.this, "没有查询到相关的车次信息", Toast.LENGTH_SHORT).show();
+                //更新视图
+                adapter.notifyDataSetChanged();
+                return;
+            }
             if(o instanceof Train){
                 train=(Train)o;
-                if(train==null){
-                   Toast.makeText(TicketResultStep2Activity.this, "没有查询到车次相关信息", Toast.LENGTH_SHORT).show();
-                    adapter.notifyDataSetChanged();
-                }else{
                     tvStep2TrainNo.setText(train.getTrainNo());
-                    tvStep2DurationTime.setText(train.getStartTime()+"-"+train.getArriveTime()
-                    +",历时"+train.getDurationTime());
+                    String durationTime=train.getStartTime()+"-"+train.getArriveTime()
+                            +",历时"+train.getDurationTime();
+                    tvStep2DurationTime.setText(durationTime);
                     // 往data中填充数据
                     Map<String,Seat> seats=train.getSeats();
-
                    for(String key:seats.keySet()){
                     Map<String,Object> row=new HashMap<>();
                        Seat seat=seats.get(key);
@@ -212,16 +231,22 @@ public class TicketResultStep2Activity extends AppCompatActivity {
                        data.add(row);
                    }
                     adapter.notifyDataSetChanged();
-                }
-            }else if(o instanceof String){
-                if("2".equals(o)){
-                    Toast.makeText(TicketResultStep2Activity.this, "服务器错误", Toast.LENGTH_SHORT).show();
-                }else if("3".equals(o)){
-                    Toast.makeText(TicketResultStep2Activity.this, "请重新登录", Toast.LENGTH_SHORT).show();
-                }
 
-            }else{
+            }else if(o instanceof String){
+                String result=(String)o;
+                if("2".equals(result)){
+                    Toast.makeText(TicketResultStep2Activity.this, "服务器错误2", Toast.LENGTH_SHORT).show();
+                }else if("3".equals(result)){
+                    Toast.makeText(TicketResultStep2Activity.this, "请重新登录", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(TicketResultStep2Activity.this, "获取数据失败", Toast.LENGTH_SHORT).show();
+                }
+                adapter.notifyDataSetChanged();
+
+            }
+            else{
                 Toast.makeText(TicketResultStep2Activity.this, "服务器错误", Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
             }
         }
     }
@@ -242,6 +267,7 @@ public class TicketResultStep2Activity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            //自定义的ViewHolder来优化适配器
             ViewHolder viewHolder;
             if(convertView==null){
                 viewHolder=new ViewHolder();
@@ -285,14 +311,41 @@ public class TicketResultStep2Activity extends AppCompatActivity {
     private class TvTicketBeAndAfListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            //获取原来的日期
+            String oldDateFrom = tvTicketResultStep2DateTitle.getText().toString();
+            Calendar calendar = Calendar.getInstance();
+            int year = Integer.parseInt(oldDateFrom.split("-")[0]);
+            //Calendar中月份从0开始，因此减1，相应的从calendar中获取月份作为显示的时候要加1
+            int month = Integer.parseInt(oldDateFrom.split("-")[1]) - 1;
+            int day = Integer.parseInt(oldDateFrom.split("-")[2].split(" ")[0]);
+            calendar.set(year, month, day);
             switch (v.getId()) {
                 case R.id.tvTicketResultStep2Before:
-
+                    //减一天
+                    calendar.add(Calendar.DAY_OF_MONTH, -1);
                     break;
                 case R.id.tvTicketResultStep2After:
-
+                    //加一天
+                    calendar.add(Calendar.DAY_OF_MONTH, 1);
                     break;
             }
+            //根据日期获取星期
+            String weekday = DateUtils.formatDateTime(TicketResultStep2Activity.this
+                    , calendar.getTimeInMillis()
+                    , DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_SHOW_WEEKDAY);
+            //拼接日期显示字符串
+            String ticketDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1)
+                    + "-" + calendar.get(Calendar.DAY_OF_MONTH) + " " + weekday;
+            tvTicketResultStep2DateTitle.setText(ticketDate);
+            //检查网络是否可用
+            if (!NetUtils.check(TicketResultStep2Activity.this)) {
+                Toast.makeText(TicketResultStep2Activity.this, "当前网络不可用", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //获取截掉星期后的时间，传给异步任务
+            String startTrainDate = tvTicketResultStep2DateTitle.getText().toString().split(" ")[0];
+            //开启异步任务
+            new Step2Task(startTrainDate).execute();
         }
     }
 }
