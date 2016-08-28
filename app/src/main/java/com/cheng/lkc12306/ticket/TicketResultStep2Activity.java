@@ -30,6 +30,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,6 +58,7 @@ public class TicketResultStep2Activity extends AppCompatActivity {
     private Adapter adapter=null;
     //列车编号和历时
     private TextView tvStep2TrainNo,tvStep2DurationTime;
+    Train train=null;
 
 
     @Override
@@ -200,7 +202,7 @@ public class TicketResultStep2Activity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            Train train=null;
+
             //每次查询后清空以前查到的数据
             data.clear();
             //关闭进度对话框
@@ -281,17 +283,27 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             }else{
                 viewHolder= (ViewHolder) convertView.getTag();
             }
-            viewHolder.tvSeatName.setText((String)data.get(position).get("seatName"));
+            String seatName=(String)data.get(position).get("seatName");
+            viewHolder.tvSeatName.setText(seatName);
             viewHolder.tvSeatNum.setText(data.get(position).get("seatNum")+"张");
             viewHolder.tvSeatPrice.setText((String)data.get(position).get("seatPrice"));
-            viewHolder.btnOrder.setOnClickListener(new BtnOrderListener());
+
+            viewHolder.btnOrder.setOnClickListener(new BtnOrderListener(seatName));
 
             return convertView;
         }
-        //预订按钮的点击监听
+        //预订按钮的点击监听,到第三步，添加联系人界面
         private class BtnOrderListener implements View.OnClickListener{
+            String seatName;
+            public BtnOrderListener( String seatName){
+                this.seatName=seatName;
+            }
             @Override
             public void onClick(View v) {
+                Intent intent=new Intent(TicketResultStep2Activity.this,TicketResultStep3Activity.class);
+                intent.putExtra("train",(Serializable)train);
+                intent.putExtra("seatName",seatName);
+                startActivity(intent);
 
             }
         }

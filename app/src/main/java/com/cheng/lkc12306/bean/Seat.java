@@ -1,9 +1,11 @@
 package com.cheng.lkc12306.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by cheng on 2016/8/26 0026.
  */
-public class Seat {
+public class Seat implements Serializable{
     private String seatName;
     private int seatNum;
     private float seatPrice;

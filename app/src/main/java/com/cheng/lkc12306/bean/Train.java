@@ -1,11 +1,12 @@
 package com.cheng.lkc12306.bean;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by cheng on 2016/8/26 0026.
  */
-public class Train {
+public class Train implements Serializable {
     private String trainNo;
     private String startStationName;
     private String endStationName;

@@ -30,7 +30,9 @@
         </activity>
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".ticket.TicketResultStep1Activity" />
-        <activity android:name=".ticket.TicketResultStep2Activity"></activity>
+        <activity android:name=".ticket.TicketResultStep2Activity" />
+        <activity android:name=".ticket.TicketResultStep3Activity" />
+        <activity android:name=".ticket.TicketResultStep3AddPassengerActivity"></activity>
     </application>
 
 </manifest>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="com.cheng.lkc12306.ticket.TicketResultStep3Activity"
+    android:weightSum="1">
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1"
+        >
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="北京"
+                android:id="@+id/tvStep3StationFrom"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+             />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="07:05"
+                android:id="@+id/tvStep3StartTime"
+               />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="无座(39张)"
+                android:id="@+id/tvStep3SeatNameAndNum"
+                android:layout_marginTop="20dp"
+                 />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:layout_marginRight="10dp"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="D5"
+                android:id="@+id/tvStep3TrainNO"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:gravity="center"
+                android:paddingRight="25dp"
+                />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/to"
+                android:scaleType="fitXY"
+                android:paddingRight="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2014-7-1(0日)"
+                android:id="@+id/tvStep3StartDate"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="大连"
+                android:id="@+id/tvStep3Stationto"
+                 android:textAppearance="?android:attr/textAppearanceLarge"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="11:55"
+                android:id="@+id/tvStep3ArrivalTime"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥154.0"
+                android:id="@+id/tvStep3Price"
+                android:textColor="@color/red"
+                android:layout_marginTop="20dp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="+添加乘车人"
+        android:id="@+id/tvStep3AddPassenger"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/lightgray"
+        android:textColor="@color/orangered"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="326dp"
+        android:id="@+id/lvStep3"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.51" />
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:weightSum="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="订单总额：¥308.0元"
+            android:id="@+id/tvStep3PriceSum"
+            android:background="@color/skyblue"
+            android:textColor="@color/white"
+            android:layout_weight="0.75"
+            android:textSize="16sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="提交"
+            android:id="@+id/tvStep3Submit"
+            android:background="@color/orangered"
+            android:textColor="@color/white"
+            android:layout_weight="0.25"
+            android:textSize="16sp"
+            android:padding="10dp"
+            android:gravity="center_horizontal"/>
+
+    </LinearLayout>
+</LinearLayout>
