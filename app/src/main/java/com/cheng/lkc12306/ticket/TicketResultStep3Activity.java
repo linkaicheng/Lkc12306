@@ -15,16 +15,19 @@ import com.cheng.lkc12306.bean.Seat;
 import com.cheng.lkc12306.bean.Step3ViewHolder;
 import com.cheng.lkc12306.bean.Train;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class TicketResultStep3Activity extends AppCompatActivity {
     private TextView tvStep3StationFrom, tvStep3StartTime, tvStep3SeatNameAndNum, tvStep3TrainNO, tvStep3StartDate, tvStep3Stationto, tvStep3ArrivalTime, tvStep3Price, tvStep3AddPassenger, tvStep3PriceSum, tvStep3Submit;
     private ListView lvStep3;
-    private List<Map<String, Object>> data = null;
+    private List<Map<String, Object>> passengers = null;
     private Adapter adapter = null;
     final  int REQUESTCODE=1;
+    //票价
+    private float price;
+    //总票价
+    private float priceSum;
 
 
     @Override
@@ -63,17 +66,13 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         tvStep3StartDate.setText(train.getStartTrainDate() + "(" + durationDate + "日" + ")");
         tvStep3Stationto.setText(train.getToStationName());
         tvStep3ArrivalTime.setText(train.getArriveTime());
-        tvStep3Price.setText("¥" + seat.getSeatPrice());
-        tvStep3PriceSum.setText("订单总额：¥" + seat.getSeatPrice());
+        price=seat.getSeatPrice();
+        tvStep3Price.setText("¥" + price);
+        tvStep3PriceSum.setText("订单总额：¥0.0");
         //添加联系人设置监听
         tvStep3AddPassenger.setOnClickListener(new TvStep3AddPassengerListener());
         //提交设置监听
         tvStep3Submit.setOnClickListener(new TvStep3SubmitListener());
-//设置适配器，BaseAdapter的方式
-        //初始化数据源
-        data = new ArrayList<Map<String, Object>>();
-        adapter = new Adapter(data);
-        lvStep3.setAdapter(adapter);
 
 
     }
@@ -91,11 +90,13 @@ public class TicketResultStep3Activity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return data.size();
+
+           return data.size();
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+
             //自定义的ViewHolder来优化适配器
             Step3ViewHolder viewHolder;
             if (convertView == null) {
@@ -110,20 +111,43 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             } else {
                 viewHolder = (Step3ViewHolder) convertView.getTag();
             }
-            viewHolder.tvStep3ContactTel.setText("电话:" + data.get(position).get("contactTel"));
-            viewHolder.tvStep3ContactName.setText((String) data.get(position).get("contactName"));
-            viewHolder.tvStep3ContactIdCard.setText("身份证:" + data.get(position).get("contactIdCard"));
+            viewHolder.tvStep3ContactTel.setText("电话:" + data.get(position).get("tel"));
+            viewHolder.tvStep3ContactName.setText((String) data.get(position).get("name"));
+            viewHolder.tvStep3ContactIdCard.setText("身份证:" + data.get(position).get("idCard"));
             viewHolder.imCancel.setImageResource(R.mipmap.cancel_25);
-            viewHolder.imCancel.setOnClickListener(new ImcancelListener());
-
+            //获取乘车人的类型，用以计算票价
+            String passengerType=((String) data.get(position).get("name")).split("\\(")[1].split("\\)")[0];
+            viewHolder.imCancel.setOnClickListener(new ImcancelListener(passengerType,position));
+            //票价计算，儿童学生半价
+            if(passengerType.equals("儿童")||passengerType.equals("学生")){
+                priceSum=priceSum+price/2;
+            }else{
+                priceSum=priceSum+price;
+            }
+             //显示订单总额
+            tvStep3PriceSum.setText("订单总额：¥"+priceSum);
             return convertView;
         }
 
         //取消联系人
         private class ImcancelListener implements View.OnClickListener {
+            private int position;
+            private String passengerType;
+            public  ImcancelListener(String passengerType,int position){
+                this.position=position;
+                this.passengerType=passengerType;
+            }
             @Override
             public void onClick(View v) {
-
+                passengers.remove(position);
+                priceSum=0;
+                //如果乘客为空，不会执行到adapter的getView()方法，
+                // 因此不会执行里面的计算总额和显示总额的操作
+                if(passengers.size()==0){
+                    tvStep3PriceSum.setText("订单总额：¥"+priceSum);
+                }else{
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
 
@@ -153,16 +177,24 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             Intent intent=new Intent(TicketResultStep3Activity.this,TicketResultStep3AddPassengerActivity.class);
             startActivityForResult(intent,REQUESTCODE);
         }
-
     }
 //处理添加联系人返回的数据
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(requestCode==REQUESTCODE&&resultCode==RESULT_OK){
             if(data!=null){
+                //每次从添加联系人界面回来，订单总额归零，重新计算
+                priceSum=0;
+                //设置适配器，BaseAdapter的方式
+                passengers= (List<Map<String, Object>>) data.getSerializableExtra("passengers");
+                adapter = new Adapter(passengers);
+                lvStep3.setAdapter(adapter);
 
             }
         }
     }
+
+
 }
