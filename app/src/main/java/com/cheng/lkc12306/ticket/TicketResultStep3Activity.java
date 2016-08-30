@@ -15,6 +15,8 @@ import com.cheng.lkc12306.bean.Seat;
 import com.cheng.lkc12306.bean.Step3ViewHolder;
 import com.cheng.lkc12306.bean.Train;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -162,11 +164,24 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         }
     }
 
-    //提交订单
+    //提交订单,将列车编号，出发日期，和乘车人姓名传给下一个界面
     private class TvStep3SubmitListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-
+            Intent intent=new Intent(TicketResultStep3Activity.this,TicketResultStep4Activity.class);
+            //同张订单，列车编号和出发日期一样
+            intent.putExtra("trainNo",tvStep3TrainNO.getText().toString());
+            String startDate=tvStep3StartDate.getText().toString().split("\\(")[0];
+            intent.putExtra("startTrainDate",startDate);
+            //存放乘车人的姓名
+            List<String> names=new ArrayList<>();
+            String name=null;
+            for(int i=0;i<passengers.size();i++){
+                name= ((String) passengers.get(i).get("name")).split("\\(")[0];
+                names.add(name);
+            }
+            intent.putExtra("names", (Serializable) names);
+            startActivity(intent);
         }
     }
 

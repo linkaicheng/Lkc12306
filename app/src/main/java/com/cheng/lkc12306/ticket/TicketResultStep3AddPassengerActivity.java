@@ -214,7 +214,6 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
                 viewHolder.tvStep3ContactIdCard= (TextView) convertView.findViewById(R.id.tvStep3ContactIdCard);
                 viewHolder.tvStep3ContactName= (TextView) convertView.findViewById(R.id.tvStep3ContactName);
                 viewHolder.tvStep3ContactTel= (TextView) convertView.findViewById(R.id.tvStep3ContactTel);
-
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (Step3AddPassViewHolder) convertView.getTag();
