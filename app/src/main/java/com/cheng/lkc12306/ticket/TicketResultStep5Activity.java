@@ -23,7 +23,10 @@ private ImageView imQrCode;
         setContentView(R.layout.activity_ticket_result_step5);
         initView();
     }
-    //初始化控件
+
+    /**
+     *  初始化控件
+     */
     private void initView(){
         Intent intent=getIntent();
         long orderId=intent.getLongExtra("orderId",0);

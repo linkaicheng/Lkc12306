@@ -39,7 +39,9 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         initView();
     }
 
-    //初始化控件，并设置监听
+    /**
+     *   初始化控件，并设置监听
+     */
     private void initView() {
         lvStep3 = (ListView) findViewById(R.id.lvStep3);
         tvStep3Submit = (TextView) findViewById(R.id.tvStep3Submit);
@@ -79,7 +81,9 @@ public class TicketResultStep3Activity extends AppCompatActivity {
 
     }
 
-    //自定义适配器
+    /**
+     *  自定义适配器
+     */
     private class Adapter extends BaseAdapter {
         List<Map<String, Object>> data;
 
@@ -164,7 +168,9 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         }
     }
 
-    //提交订单,将列车编号，出发日期，和乘车人姓名传给下一个界面
+    /**
+     * 提交订单,将列车编号，出发日期，和乘车人姓名传给下一个界面
+     */
     private class TvStep3SubmitListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -185,7 +191,9 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         }
     }
 
-    //添加联系人
+    /**
+     * 添加联系人
+     */
     private class TvStep3AddPassengerListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -193,7 +201,13 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             startActivityForResult(intent,REQUESTCODE);
         }
     }
-//处理添加联系人返回的数据
+
+    /**
+     * //处理添加联系人返回的数据
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

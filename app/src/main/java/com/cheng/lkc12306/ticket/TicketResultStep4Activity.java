@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 public class TicketResultStep4Activity extends AppCompatActivity {
-    private TextView tvOrderId
-            ,tvPayAfter
-            ,tvPayNow;
+    private TextView tvOrderId//订单编号及提交订单的结果提示
+            ,tvPayAfter//暂不支付
+            ,tvPayNow;//确定支付
     private ListView lvStep4;
     private SimpleAdapter adapter;
     List<Map<String ,Object>> data;
@@ -45,8 +45,9 @@ public class TicketResultStep4Activity extends AppCompatActivity {
     private static long code;
     //用于生成唯一的座位
     private static int seatNum;
-// 订单号
+    // 订单号
     private long orderId;
+    //进度对话框
     private ProgressDialog pDialog;
 
     @Override
@@ -55,7 +56,10 @@ public class TicketResultStep4Activity extends AppCompatActivity {
         setContentView(R.layout.activity_ticket_result_step4);
         initView();
     }
-    //初始化控件并设置监听
+
+    /**
+     * 初始化界面并设置监听
+     */
     private void initView(){
         tvOrderId = (TextView)findViewById(R.id.tvOrderId);
         tvPayAfter = (TextView)findViewById(R.id.tvPayAfter);
@@ -96,7 +100,7 @@ public class TicketResultStep4Activity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        //确定支付，到第五步，支付成功界面
+        //确定支付，向服务器发请求
         tvPayNow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,7 +114,11 @@ public class TicketResultStep4Activity extends AppCompatActivity {
             }
         });
     }
-    //异步任务，向服务器发出支付请求
+
+
+    /**
+     * 异步任务，向服务器发出支付请求
+     */
     private class Step4Task extends AsyncTask<Void,Void,String>{
         @Override
         protected void onPreExecute() {
@@ -118,6 +126,11 @@ public class TicketResultStep4Activity extends AppCompatActivity {
             pDialog= ProgressDialog.show(TicketResultStep4Activity.this,null,"支付中，请稍候",false,true);
         }
 
+        /**
+         * 发出支付请求，请求参数：orderId,cookie
+         * @param params
+         * @return
+         */
         @Override
         protected String doInBackground(Void... params) {
             String result=null;
@@ -177,6 +190,10 @@ public class TicketResultStep4Activity extends AppCompatActivity {
             return result;
         }
 
+        /**
+         * 处理请求结果，支付成功，跳转到支付成功界面，
+         * @param s
+         */
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
@@ -186,6 +203,7 @@ public class TicketResultStep4Activity extends AppCompatActivity {
             }
             switch (s) {
                 case "1":
+                    //支付成功，将订单编号传给支付成功界面
                     Toast.makeText(TicketResultStep4Activity.this, "支付成功", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(TicketResultStep4Activity.this, TicketResultStep5Activity.class);
                     intent.putExtra("orderId",orderId);
@@ -201,7 +219,11 @@ public class TicketResultStep4Activity extends AppCompatActivity {
 
         }
     }
-//生成订单编号
+
+    /**
+     * 生成唯一的订单编号
+     * @return
+     */
     public static synchronized long nextCode() {
         code++;
         String str = new SimpleDateFormat("yyyyMM").format(new Date());
@@ -209,7 +231,11 @@ public class TicketResultStep4Activity extends AppCompatActivity {
         m += code;
         return m;
     }
-//生成唯一的座位
+
+    /**
+     * 生成唯一的座位
+     * @return
+     */
     public static synchronized int nextSeat() {
             seatNum++;
         return seatNum;

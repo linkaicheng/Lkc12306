@@ -55,7 +55,9 @@ public class TicketResultStep1Activity extends AppCompatActivity {
         initView();
     }
 
-    //初始化控件，并设置监听
+    /**
+     * 初始化控件，并设置监听
+     */
     private void initView() {
         tvTicketResultStep1DateTitle = (TextView) findViewById(R.id.tvTicketResultStep1DateTitle);
         tvTicketResultStep1StationTitle = (TextView) findViewById(R.id.tvTicketResultStep1StationTitle);
@@ -101,7 +103,10 @@ public class TicketResultStep1Activity extends AppCompatActivity {
         lvTicketResultStep1.setOnItemClickListener(new LvTicketResultSetp1OnItListener());
 
     }
-    //列车列表的点击监听
+
+    /**
+     * 列车列表的点击监听
+     */
     private class LvTicketResultSetp1OnItListener implements AdapterView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -119,7 +124,9 @@ public class TicketResultStep1Activity extends AppCompatActivity {
         }
     }
 
-    //执行从服务器获取数据的异步任务
+    /**
+     * 执行从服务器获取数据的异步任务
+     */
     private class Step1Task extends AsyncTask<Void, Void, Object> {
         String startTrainDate;
 
@@ -255,7 +262,9 @@ public class TicketResultStep1Activity extends AppCompatActivity {
         }
     }
 
-    //前一天后一天的监听
+    /**
+     *  前一天后一天的监听
+     */
     private class TvTicketBeAndAfListerner implements View.OnClickListener {
         @Override
         public void onClick(View v) {

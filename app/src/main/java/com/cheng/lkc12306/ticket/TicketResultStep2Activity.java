@@ -68,7 +68,9 @@ public class TicketResultStep2Activity extends AppCompatActivity {
         initView();
     }
 
-    //初始或控件，并设置监听
+    /**
+     *   初始或控件，并设置监听
+     */
     private void initView() {
         tvTicketResultStep2StationTitle = (TextView) findViewById(R.id.tvTicketResultStep2StationTitle);
         tvTicketResultStep2DateTitle = (TextView) findViewById(R.id.tvTicketResultStep2DateTitle);
@@ -252,7 +254,10 @@ public class TicketResultStep2Activity extends AppCompatActivity {
             }
         }
     }
-    //自定义适配器
+
+    /**
+     * 自定义适配器
+     */
     private class Adapter extends BaseAdapter{
         List<Map<String,Object>> data;
         public Adapter(List<Map<String,Object>> data){
@@ -292,7 +297,10 @@ public class TicketResultStep2Activity extends AppCompatActivity {
 
             return convertView;
         }
-        //预订按钮的点击监听,到第三步，添加联系人界面
+
+        /**
+         * 预订按钮的点击监听,到第三步，添加联系人界面
+         */
         private class BtnOrderListener implements View.OnClickListener{
             String seatName;
             public BtnOrderListener( String seatName){
@@ -319,7 +327,9 @@ public class TicketResultStep2Activity extends AppCompatActivity {
         }
     }
 
-    //前一天，后一天的点击监听
+    /**
+     * 前一天，后一天的点击监听
+     */
     private class TvTicketBeAndAfListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {

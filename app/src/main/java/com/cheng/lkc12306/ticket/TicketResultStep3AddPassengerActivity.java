@@ -48,7 +48,7 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
     private Adapter adapter=null;
     //数据源
     private List<Map<String,Object>> data=null;
-//联系人ListView
+    //联系人ListView
     private ListView lvStep3AddPass;
     //添加乘车人按钮
     private Button btnAddPassenger;
@@ -76,7 +76,10 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
         //添加乘车人按钮点击监听
         btnAddPassenger.setOnClickListener(new BtnAddPassengerListener());
     }
-    //添加乘车人按钮点击监听，将选中的联系人回传
+
+    /**
+     * //添加乘车人按钮点击监听，将选中的联系人回传
+     */
     private class BtnAddPassengerListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -86,7 +89,10 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
             finish();
         }
     }
-    //联系人列表的点击监听
+
+    /**
+     *   //联系人列表的点击监听
+     */
     private class LvStep3AddPassOnItCkListener implements AdapterView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,7 +105,10 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-    //重写onResume方法，执行联系人数据的获取操作
+
+    /**
+     * 重写onResume方法，执行联系人数据的获取操作
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -150,6 +159,10 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    /**
+     *  处理服务器返回的结果
+     */
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -184,7 +197,9 @@ public class TicketResultStep3AddPassengerActivity extends AppCompatActivity {
     };
 
 
-    //自定义适配器
+    /**
+     * 自定义适配器
+     */
     private class Adapter extends BaseAdapter {
         List<Map<String, Object>> data;
 
