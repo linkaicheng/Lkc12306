@@ -33,4 +33,13 @@ public class Seat implements Serializable{
     public void setSeatPrice(float seatPrice) {
         this.seatPrice = seatPrice;
     }
+
+    @Override
+    public String toString() {
+        return "Seat{" +
+                "seatName='" + seatName + '\'' +
+                ", seatNum=" + seatNum +
+                ", seatPrice=" + seatPrice +
+                '}';
+    }
 }

@@ -1,23 +1,15 @@
 package com.cheng.lkc12306.bean;
 
 /**
- * Created by cheng on 2016/8/24.
+ * Created by cheng on 2016/8/30 0030.
  */
-public class Passenger {
-
-    /**
-     * id : 37010519880414805X
-     * name : 陈伟飞
-     * idType : 身份证
-     * tel : 13912341200
-     * type : 成人
-     */
-
+public class OrderPassenger {
     private String id;
     private String name;
     private String idType;
     private String tel;
     private String type;
+    private Seat seat;
 
     public String getId() {
         return id;
@@ -59,14 +51,23 @@ public class Passenger {
         this.type = type;
     }
 
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Seat seat) {
+        this.seat = seat;
+    }
+
     @Override
     public String toString() {
-        return "Passenger{" +
+        return "OrderPassenger{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", idType='" + idType + '\'' +
                 ", tel='" + tel + '\'' +
                 ", type='" + type + '\'' +
+                ", seat=" + seat +
                 '}';
     }
 }

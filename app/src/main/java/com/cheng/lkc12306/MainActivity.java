@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
         mPage.addOnPageChangeListener(new MyPageChangeListener());
 
     }
+
+    /**
+     * 单选按钮选中监听
+     */
     private class MyCheckedChangeListener implements RadioGroup.OnCheckedChangeListener{
 
         @Override
@@ -69,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * 屏幕滑动切换监听
+     */
     private class MyPageChangeListener implements ViewPager.OnPageChangeListener{
 
         @Override

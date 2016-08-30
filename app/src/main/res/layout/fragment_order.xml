@@ -2,13 +2,66 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue">
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
 
-    <TextView
-        android:layout_width="wrap_content"
+    >
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="订单管理"
-        android:id="@+id/textView"
-        android:textSize="50sp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center_horizontal">
+
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+           android:id="@+id/rgOrder"
+            >
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="待支付"
+                android:id="@+id/rbPayWait"
+                android:checked="true"
+                android:button="@null"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/rb_order_focus_color"
+                android:background="@drawable/rb_order_selector2"
+                />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全部订单"
+                android:id="@+id/rbOrderAll"
+                android:button="@null"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/rb_order_focus_color"
+                android:background="@drawable/rb_order_selector2"
+                />
+        </RadioGroup>
+
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/lvOrder"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>
