@@ -312,7 +312,7 @@ public class TicketResultStep2Activity extends AppCompatActivity {
                 intent.putExtra("train",(Serializable)train);
                 intent.putExtra("seatName",seatName);
                 startActivity(intent);
-
+                finish();
             }
         }
 

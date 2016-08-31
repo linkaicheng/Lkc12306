@@ -121,6 +121,7 @@ public class TicketResultStep1Activity extends AppCompatActivity {
             intent.putExtra("startTrainDate",startTrainDate);
             intent.putExtra("trainNo",trainNo);
             startActivity(intent);
+            finish();
         }
     }
 

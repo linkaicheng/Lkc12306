@@ -150,6 +150,7 @@ public class TicketFragment extends Fragment {
             intent.putExtra("ticketDateFrom",tvTicketDateFrom.getText().toString());
             startActivity(intent);
 
+
         }
     }
 

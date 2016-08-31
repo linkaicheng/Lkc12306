@@ -45,6 +45,7 @@ private ImageView imQrCode;
         public void onClick(View v) {
             Intent intent=new Intent(TicketResultStep5Activity.this, MainActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 }

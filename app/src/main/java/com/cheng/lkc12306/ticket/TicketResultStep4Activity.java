@@ -98,6 +98,7 @@ public class TicketResultStep4Activity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent=new Intent(TicketResultStep4Activity.this,MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         //确定支付，向服务器发请求
@@ -208,6 +209,7 @@ public class TicketResultStep4Activity extends AppCompatActivity {
                     Intent intent = new Intent(TicketResultStep4Activity.this, TicketResultStep5Activity.class);
                     intent.putExtra("orderId",orderId);
                     startActivity(intent);
+                    finish();
                     break;
                 case "2":
                     Toast.makeText(TicketResultStep4Activity.this, "服务器错误2", Toast.LENGTH_SHORT).show();

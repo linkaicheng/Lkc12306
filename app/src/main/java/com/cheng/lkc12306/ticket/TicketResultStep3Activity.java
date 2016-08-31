@@ -188,6 +188,7 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             }
             intent.putExtra("names", (Serializable) names);
             startActivity(intent);
+            finish();
         }
     }
 
