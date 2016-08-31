@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -72,10 +73,30 @@ public class OrderFragment extends Fragment {
             Toast.makeText(getActivity(), "网络不可用", Toast.LENGTH_SHORT).show();
             return;
         }
+
         new OrderTask().execute("0");
 
-        rgOrder.setOnCheckedChangeListener(new MyCheckChangeListener());
+        rgOrder.setOnCheckedChangeListener(new CheckChangeListener());
+        lvOrder.setOnItemClickListener(new LvOrderOnItListener());
 
+    }
+    private class LvOrderOnItListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            switch ((int)data.get(position).get("status")) {
+                case  0://未支付
+
+                    break;
+                case  1://已支付
+                    Toast.makeText(getActivity(), "已支付", Toast.LENGTH_SHORT).show();
+
+                    break;
+                case  2://已取消
+
+                    Toast.makeText(getActivity(), "已取消", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
     }
 private class MyAdapter extends BaseAdapter{
     List<Map<String,Object>> data;
@@ -139,9 +160,10 @@ private class MyAdapter extends BaseAdapter{
         return 0;
     }
 }
-    private class MyCheckChangeListener implements RadioGroup.OnCheckedChangeListener{
+    private class CheckChangeListener implements RadioGroup.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
+            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。11", false, true);
             switch (checkedId) {
                 case  R.id.rbPayWait:
                     new OrderTask().execute("0");
@@ -156,7 +178,7 @@ private class MyAdapter extends BaseAdapter{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。", false, true);
+
         }
 
         @Override
@@ -180,8 +202,6 @@ private class MyAdapter extends BaseAdapter{
                 URLConnManager.postParams(conn.getOutputStream(), paramList);
                 //连接
                 conn.connect();
-
-
                 //获得响应码
                 int code=conn.getResponseCode();
                 if(code==200){//连接成功

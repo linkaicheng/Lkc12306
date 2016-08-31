@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cheng.lkc12306.MainActivity;
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.utils.ZxingUtils;
 
@@ -43,8 +42,8 @@ private ImageView imQrCode;
     private class BtnStep5BackListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            Intent intent=new Intent(TicketResultStep5Activity.this, MainActivity.class);
-            startActivity(intent);
+//            Intent intent=new Intent(TicketResultStep5Activity.this, MainActivity.class);
+//            startActivity(intent);
             finish();
         }
     }

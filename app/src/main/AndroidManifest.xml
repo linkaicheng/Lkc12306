@@ -34,7 +34,8 @@
         <activity android:name=".ticket.TicketResultStep3Activity" />
         <activity android:name=".ticket.TicketResultStep3AddPassengerActivity" />
         <activity android:name=".ticket.TicketResultStep4Activity" />
-        <activity android:name=".ticket.TicketResultStep5Activity"></activity>
+        <activity android:name=".ticket.TicketResultStep5Activity" />
+        <activity android:name=".order.OrderNotPaidActivity"></activity>
     </application>
 
 </manifest>

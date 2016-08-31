@@ -9,6 +9,15 @@ public class Seat implements Serializable{
     private String seatName;
     private int seatNum;
     private float seatPrice;
+    private String seatNo;
+
+    public String getSeatNo() {
+        return seatNo;
+    }
+
+    public void setSeatNo(String seatNo) {
+        this.seatNo = seatNo;
+    }
 
     public String getSeatName() {
         return seatName;
@@ -40,6 +49,7 @@ public class Seat implements Serializable{
                 "seatName='" + seatName + '\'' +
                 ", seatNum=" + seatNum +
                 ", seatPrice=" + seatPrice +
+                ", seatNo='" + seatNo + '\'' +
                 '}';
     }
 }
