@@ -10,14 +10,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioGroup;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.bean.Order;
+import com.cheng.lkc12306.bean.Order1ViewHolder;
 import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
@@ -44,7 +46,7 @@ public class OrderFragment extends Fragment {
     private ListView lvOrder;
     private TextView tvStatus;
     private List<Map<String,Object>> data=null;
-    private SimpleAdapter adapter;
+    private MyAdapter adapter;
     private ProgressDialog pDialog;
     private RadioGroup rgOrder;
     @Nullable
@@ -63,11 +65,7 @@ public class OrderFragment extends Fragment {
         rgOrder = (RadioGroup) getActivity().findViewById(R.id.rgOrder);
         tvStatus = (TextView) getActivity().findViewById(R.id.tvStatus);
         data=new ArrayList<>();
-        adapter=new SimpleAdapter(getActivity(),data,R.layout.item_order_list
-        ,new String[]{"orderId","trainNo","startDate","stationInfo"
-              ,"status","price"}
-                , new int[]{R.id.tvOrderId,R.id.tvTrainNO,R.id.tvStartDate,R.id.tvStationInfo
-        ,R.id.tvStatus,R.id.tvPrice});
+        adapter=new MyAdapter(data);
         lvOrder.setAdapter(adapter);
         //判断网络是否可用
         if (!NetUtils.check(getActivity())) {
@@ -75,10 +73,72 @@ public class OrderFragment extends Fragment {
             return;
         }
         new OrderTask().execute("0");
-        ;
+
         rgOrder.setOnCheckedChangeListener(new MyCheckChangeListener());
 
     }
+private class MyAdapter extends BaseAdapter{
+    List<Map<String,Object>> data;
+    public MyAdapter(List<Map<String,Object>> data){
+        this.data=data;
+    }
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        //自定义的ViewHolder来优化适配器
+        Order1ViewHolder viewHolder;
+        if (convertView == null) {
+            viewHolder = new Order1ViewHolder();
+            convertView = View.inflate(getActivity(), R.layout.item_order_list
+                    , null);
+          viewHolder.imForward= (ImageView) convertView.findViewById(R.id.imForward);
+            viewHolder.tvOrderId= (TextView) convertView.findViewById(R.id.tvOrderId);
+            viewHolder.tvPrice= (TextView) convertView.findViewById(R.id.tvPrice);
+            viewHolder.tvStartDate= (TextView) convertView.findViewById(R.id.tvStartDate);
+            viewHolder.tvStationInfo= (TextView) convertView.findViewById(R.id.tvStationInfo);
+            viewHolder.tvStatus= (TextView) convertView.findViewById(R.id.tvStatus);
+            viewHolder.tvTrainNO= (TextView) convertView.findViewById(R.id.tvTrainNO);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (Order1ViewHolder) convertView.getTag();
+        }
+       viewHolder.tvOrderId.setText("订单:"+data.get(position).get("orderId"));
+        viewHolder.tvTrainNO.setText((String)data.get(position).get("trainNo"));
+        viewHolder.tvStartDate.setText((String)data.get(position).get("startDate"));
+        viewHolder.tvStationInfo.setText((String)data.get(position).get("stationInfo"));
+        switch ((int)data.get(position).get("status")) {
+            case  0:
+                viewHolder.tvStatus.setText("未支付");
+                viewHolder.tvStatus.setTextColor(0xffFF0000);
+                break;
+            case  1:
+                viewHolder.tvStatus.setText("已支付");
+                viewHolder.tvStatus.setTextColor(0xff599bff);
+                break;
+            case  2:
+                viewHolder.tvStatus.setText("已取消");
+               viewHolder.tvStatus.setTextColor(0xffD8D7D8);
+                break;
+        }
+        viewHolder.tvPrice.setText(String.valueOf(data.get(position).get("price")));
+        viewHolder.imForward.setImageResource(R.mipmap.forward_25);
+        return convertView;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+}
     private class MyCheckChangeListener implements RadioGroup.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -191,26 +251,13 @@ public class OrderFragment extends Fragment {
                         row.put("stationInfo",order.getTrain().getFromStationName()+"->"
                                 +order.getTrain().getToStationName()
                                 +" "+order.getPassengerList().size()+"人");
+                        row.put("status",order.getStatus());
 
-                        switch (order.getStatus()) {
-                            case  0:
-                                row.put("status","未支付");
-                                break;
-                            case  1:
-                                row.put("status","已支付");
-                                break;
-                            case  2:
-                                row.put("status","已取消");
-                                break;
-                        }
                         row.put("price",order.getOrderPrice());
                         data.add(row);
                     }
                     adapter.notifyDataSetChanged();
-//                    for(int i=0;i<adapter.getCount();i++){
-//                        adapter.getView(i,null,null);
-//                       Log.e("cheng","********"+adapter.getItem(i));
-//                    }
+
 
 
                 }
