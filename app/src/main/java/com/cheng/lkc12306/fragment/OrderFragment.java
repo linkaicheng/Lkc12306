@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,8 @@ public class OrderFragment extends Fragment {
     private RadioGroup rgOrder;
     private List<OrderNotPaidItem> orderItems=null;
     List<Order> orders=null;
+    private RadioButton rbPayWait,rbOrderAll;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -73,27 +76,37 @@ public class OrderFragment extends Fragment {
         lvOrder = (ListView) getActivity().findViewById(R.id.lvOrder);
         rgOrder = (RadioGroup) getActivity().findViewById(R.id.rgOrder);
         tvStatus = (TextView) getActivity().findViewById(R.id.tvStatus);
+        rbPayWait = (RadioButton) getActivity().findViewById(R.id.rbPayWait);
+        rbOrderAll = (RadioButton) getActivity().findViewById(R.id.rbOrderAll);
         data=new ArrayList<>();
         orderItems=new ArrayList<>();
         adapter=new MyAdapter(data);
         lvOrder.setAdapter(adapter);
+        rgOrder.setOnCheckedChangeListener(new CheckChangeListener());
+        lvOrder.setOnItemClickListener(new LvOrderOnItListener());
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         //判断网络是否可用
         if (!NetUtils.check(getActivity())) {
             Toast.makeText(getActivity(), "网络不可用", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        new OrderTask().execute("0");
-
-        rgOrder.setOnCheckedChangeListener(new CheckChangeListener());
-        lvOrder.setOnItemClickListener(new LvOrderOnItListener());
-
+        if(rbOrderAll.isChecked()){
+            new OrderTask().execute("1");
+        }else if(rbPayWait.isChecked()){
+            new OrderTask().execute("0");
+        }
     }
+
     private class LvOrderOnItListener implements AdapterView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Order order=orders.get(position);
-
             orderItems.clear();
             for(OrderPassenger passenger:order.getPassengerList()){
                 OrderNotPaidItem item=new OrderNotPaidItem();
@@ -101,6 +114,8 @@ public class OrderFragment extends Fragment {
                 item.setTrainNo(order.getTrain().getTrainNo());
                 item.setDate(order.getTrain().getStartTrainDate());
                 item.setSeat(passenger.getSeat().getSeatNo());
+                item.setId(passenger.getId());
+                item.setIdType(passenger.getIdType());
                 orderItems.add(item);
             }
 
@@ -110,41 +125,24 @@ public class OrderFragment extends Fragment {
                     intent.putExtra("position",position);
                     intent.putExtra("orderId",order.getId());
                     intent.putExtra("orderItems", (Serializable) orderItems);
-                    startActivityForResult(intent,0);
+                    //startActivityForResult(intent,0);
+                    startActivity(intent);
                     break;
                 case  1://已支付
                     Intent intent2=new Intent(getActivity(),PaidActivity.class);
                     intent2.putExtra("position",position);
                     intent2.putExtra("orderId",order.getId());
                     intent2.putExtra("orderItems", (Serializable) orderItems);
-                    startActivityForResult(intent2,1);
+                    //startActivityForResult(intent2,1);
+                    startActivity(intent2);
                     break;
                 case  2://已取消
-
                     Toast.makeText(getActivity(), "已取消", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
     }
-//处理intent回传
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        switch (requestCode) {
-            case  0:
-                if(resultCode==getActivity().RESULT_OK){
-                    if(intent.getStringExtra("result").equals("cancel")){
-                        data.get(intent.getIntExtra("position",0)).put("status",2);
-                        adapter.notifyDataSetChanged();
-                    }else if(intent.getStringExtra("result").equals("pay")){
-                        data.get(intent.getIntExtra("position",0)).put("status",1);
-                        adapter.notifyDataSetChanged();
-                    }
 
-                }
-                break;
-        }
-    }
 
     private class MyAdapter extends BaseAdapter{
     List<Map<String,Object>> data;
@@ -212,12 +210,22 @@ public class OrderFragment extends Fragment {
     private class CheckChangeListener implements RadioGroup.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。11", false, true);
+            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。", false, true);
             switch (checkedId) {
                 case  R.id.rbPayWait:
+                    //判断网络是否可用
+                    if (!NetUtils.check(getActivity())) {
+                        Toast.makeText(getActivity(), "网络不可用", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     new OrderTask().execute("0");
                     break;
                 case  R.id.rbOrderAll:
+                    //判断网络是否可用
+                    if (!NetUtils.check(getActivity())) {
+                        Toast.makeText(getActivity(), "网络不可用", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     new OrderTask().execute("1");
                     break;
             }

@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.bean.Seat;
@@ -117,9 +118,9 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             } else {
                 viewHolder = (Step3ViewHolder) convertView.getTag();
             }
-            viewHolder.tvStep3ContactTel.setText("电话:" + data.get(position).get("tel"));
+            viewHolder.tvStep3ContactTel.setText((String)data.get(position).get("tel"));
             viewHolder.tvStep3ContactName.setText((String) data.get(position).get("name"));
-            viewHolder.tvStep3ContactIdCard.setText("身份证:" + data.get(position).get("idCard"));
+            viewHolder.tvStep3ContactIdCard.setText((String)data.get(position).get("idCard"));
             viewHolder.imCancel.setImageResource(R.mipmap.cancel_25);
             //获取乘车人的类型，用以计算票价
             String passengerType=((String) data.get(position).get("name")).split("\\(")[1].split("\\)")[0];
@@ -174,6 +175,12 @@ public class TicketResultStep3Activity extends AppCompatActivity {
     private class TvStep3SubmitListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            //如果没有添加乘车人，给出提示
+            if(passengers==null||passengers.size()==0){
+                Toast.makeText(TicketResultStep3Activity.this, "请添加乘车人", Toast.LENGTH_SHORT).show();
+                return;//返回，不再执行后续代码
+            }
+
             Intent intent=new Intent(TicketResultStep3Activity.this,TicketResultStep4Activity.class);
             //同张订单，列车编号和出发日期一样
             intent.putExtra("trainNo",tvStep3TrainNO.getText().toString());
@@ -221,10 +228,7 @@ public class TicketResultStep3Activity extends AppCompatActivity {
                 passengers= (List<Map<String, Object>>) data.getSerializableExtra("passengers");
                 adapter = new Adapter(passengers);
                 lvStep3.setAdapter(adapter);
-
             }
         }
     }
-
-
 }
