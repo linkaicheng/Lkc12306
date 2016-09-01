@@ -65,6 +65,7 @@ public class OrderFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_order,container,false);
+
     }
 
     @Override
@@ -84,8 +85,14 @@ public class OrderFragment extends Fragment {
         lvOrder.setAdapter(adapter);
         rgOrder.setOnCheckedChangeListener(new CheckChangeListener());
         lvOrder.setOnItemClickListener(new LvOrderOnItListener());
-
+//        //判断网络是否可用
+//        if (!NetUtils.check(getActivity())) {
+//            Toast.makeText(getActivity(), "网络不可用", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        new OrderTask().execute("0");
     }
+
 
     @Override
     public void onResume() {
@@ -125,7 +132,6 @@ public class OrderFragment extends Fragment {
                     intent.putExtra("position",position);
                     intent.putExtra("orderId",order.getId());
                     intent.putExtra("orderItems", (Serializable) orderItems);
-                    //startActivityForResult(intent,0);
                     startActivity(intent);
                     break;
                 case  1://已支付
@@ -133,11 +139,10 @@ public class OrderFragment extends Fragment {
                     intent2.putExtra("position",position);
                     intent2.putExtra("orderId",order.getId());
                     intent2.putExtra("orderItems", (Serializable) orderItems);
-                    //startActivityForResult(intent2,1);
                     startActivity(intent2);
                     break;
                 case  2://已取消
-                    Toast.makeText(getActivity(), "已取消", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "订单已取消", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -210,7 +215,7 @@ public class OrderFragment extends Fragment {
     private class CheckChangeListener implements RadioGroup.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。", false, true);
+
             switch (checkedId) {
                 case  R.id.rbPayWait:
                     //判断网络是否可用
@@ -235,6 +240,7 @@ public class OrderFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            pDialog = ProgressDialog.show(getActivity(), null, "请稍候。。", false, true);
 
         }
 

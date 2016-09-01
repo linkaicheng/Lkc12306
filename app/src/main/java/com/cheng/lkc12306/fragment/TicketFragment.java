@@ -53,6 +53,7 @@ public class TicketFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         initView();
 
+
     }
 
     //初始化按钮，并为按钮设置监听

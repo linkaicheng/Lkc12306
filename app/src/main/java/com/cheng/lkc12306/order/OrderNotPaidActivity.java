@@ -75,11 +75,11 @@ private TextView tvOrderId,tvCancel,tvPay;
             switch (v.getId()) {
                 case R.id.tvCancel:
                     action="/otn/Cancel";
-                   new CancelOrderTask().execute();
+                   new OrderTask().execute();
                     break;
                 case  R.id.tvPay://确认支付
                     action="/otn/Pay";
-                    new CancelOrderTask().execute();
+                    new OrderTask().execute();
                     break;
             }
         }
@@ -87,11 +87,16 @@ private TextView tvOrderId,tvCancel,tvPay;
     /**
      * 异步任务，向服务器发出取消订单请求
      */
-    private class CancelOrderTask extends AsyncTask<Void,Void,String> {
+    private class OrderTask extends AsyncTask<Void,Void,String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog= ProgressDialog.show(OrderNotPaidActivity.this,null,"取消订单中，请稍候",false,true);
+            if(action.equals("/otn/Cancel")){
+                pDialog= ProgressDialog.show(OrderNotPaidActivity.this,null,"取消订单中，请稍候",false,true);
+            }else if(action.equals("/otn/Pay")){
+                pDialog= ProgressDialog.show(OrderNotPaidActivity.this,null,"订单支付中，请稍候",false,true);
+            }
+
         }
 
         /**
