@@ -25,6 +25,7 @@ import com.cheng.lkc12306.bean.Order1ViewHolder;
 import com.cheng.lkc12306.bean.OrderNotPaidItem;
 import com.cheng.lkc12306.bean.OrderPassenger;
 import com.cheng.lkc12306.order.OrderNotPaidActivity;
+import com.cheng.lkc12306.order.PaidActivity;
 import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
@@ -55,7 +56,7 @@ public class OrderFragment extends Fragment {
     private MyAdapter adapter;
     private ProgressDialog pDialog;
     private RadioGroup rgOrder;
-    private List<OrderNotPaidItem> orderNotPaidItems=null;
+    private List<OrderNotPaidItem> orderItems=null;
     List<Order> orders=null;
     @Nullable
     @Override
@@ -73,7 +74,7 @@ public class OrderFragment extends Fragment {
         rgOrder = (RadioGroup) getActivity().findViewById(R.id.rgOrder);
         tvStatus = (TextView) getActivity().findViewById(R.id.tvStatus);
         data=new ArrayList<>();
-        orderNotPaidItems=new ArrayList<>();
+        orderItems=new ArrayList<>();
         adapter=new MyAdapter(data);
         lvOrder.setAdapter(adapter);
         //判断网络是否可用
@@ -93,14 +94,14 @@ public class OrderFragment extends Fragment {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Order order=orders.get(position);
 
-            orderNotPaidItems.clear();
+            orderItems.clear();
             for(OrderPassenger passenger:order.getPassengerList()){
                 OrderNotPaidItem item=new OrderNotPaidItem();
                 item.setName(passenger.getName());
                 item.setTrainNo(order.getTrain().getTrainNo());
                 item.setDate(order.getTrain().getStartTrainDate());
                 item.setSeat(passenger.getSeat().getSeatNo());
-                orderNotPaidItems.add(item);
+                orderItems.add(item);
             }
 
             switch ((int)data.get(position).get("status")) {
@@ -108,12 +109,15 @@ public class OrderFragment extends Fragment {
                     Intent intent=new Intent(getActivity(), OrderNotPaidActivity.class);
                     intent.putExtra("position",position);
                     intent.putExtra("orderId",order.getId());
-                    intent.putExtra("orderItems", (Serializable) orderNotPaidItems);
+                    intent.putExtra("orderItems", (Serializable) orderItems);
                     startActivityForResult(intent,0);
                     break;
                 case  1://已支付
-                    Toast.makeText(getActivity(), "已支付", Toast.LENGTH_SHORT).show();
-
+                    Intent intent2=new Intent(getActivity(),PaidActivity.class);
+                    intent2.putExtra("position",position);
+                    intent2.putExtra("orderId",order.getId());
+                    intent2.putExtra("orderItems", (Serializable) orderItems);
+                    startActivityForResult(intent2,1);
                     break;
                 case  2://已取消
 
