@@ -10,6 +10,24 @@ public class OrderNotPaidItem implements Serializable {
     private String trainNo;
     private String date;
     private String seat;
+    private String id;
+    private String idType;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getIdType() {
+        return idType;
+    }
+
+    public void setIdType(String idType) {
+        this.idType = idType;
+    }
 
     @Override
     public String toString() {
@@ -18,6 +36,8 @@ public class OrderNotPaidItem implements Serializable {
                 ", trainNo='" + trainNo + '\'' +
                 ", date='" + date + '\'' +
                 ", seat='" + seat + '\'' +
+                ", id='" + id + '\'' +
+                ", idType='" + idType + '\'' +
                 '}';
     }
 
