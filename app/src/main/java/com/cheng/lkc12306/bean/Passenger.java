@@ -18,6 +18,15 @@ public class Passenger {
     private String idType;
     private String tel;
     private String type;
+    private Seat seat;
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Seat seat) {
+        this.seat = seat;
+    }
 
     public String getId() {
         return id;
@@ -67,6 +76,7 @@ public class Passenger {
                 ", idType='" + idType + '\'' +
                 ", tel='" + tel + '\'' +
                 ", type='" + type + '\'' +
+                ", seat=" + seat +
                 '}';
     }
 }

@@ -2,6 +2,7 @@ package com.cheng.lkc12306.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +22,9 @@ import android.widget.Toast;
 import com.cheng.lkc12306.R;
 import com.cheng.lkc12306.bean.Order;
 import com.cheng.lkc12306.bean.Order1ViewHolder;
+import com.cheng.lkc12306.bean.OrderNotPaidItem;
+import com.cheng.lkc12306.bean.OrderPassenger;
+import com.cheng.lkc12306.order.OrderNotPaidActivity;
 import com.cheng.lkc12306.utils.Constant;
 import com.cheng.lkc12306.utils.NetUtils;
 import com.cheng.lkc12306.utils.URLConnManager;
@@ -33,6 +37,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +55,8 @@ public class OrderFragment extends Fragment {
     private MyAdapter adapter;
     private ProgressDialog pDialog;
     private RadioGroup rgOrder;
+    private List<OrderNotPaidItem> orderNotPaidItems=null;
+    List<Order> orders=null;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -66,6 +73,7 @@ public class OrderFragment extends Fragment {
         rgOrder = (RadioGroup) getActivity().findViewById(R.id.rgOrder);
         tvStatus = (TextView) getActivity().findViewById(R.id.tvStatus);
         data=new ArrayList<>();
+        orderNotPaidItems=new ArrayList<>();
         adapter=new MyAdapter(data);
         lvOrder.setAdapter(adapter);
         //判断网络是否可用
@@ -83,9 +91,25 @@ public class OrderFragment extends Fragment {
     private class LvOrderOnItListener implements AdapterView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Order order=orders.get(position);
+
+            orderNotPaidItems.clear();
+            for(OrderPassenger passenger:order.getPassengerList()){
+                OrderNotPaidItem item=new OrderNotPaidItem();
+                item.setName(passenger.getName());
+                item.setTrainNo(order.getTrain().getTrainNo());
+                item.setDate(order.getTrain().getStartTrainDate());
+                item.setSeat(passenger.getSeat().getSeatNo());
+                orderNotPaidItems.add(item);
+            }
+
             switch ((int)data.get(position).get("status")) {
                 case  0://未支付
-
+                    Intent intent=new Intent(getActivity(), OrderNotPaidActivity.class);
+                    intent.putExtra("position",position);
+                    intent.putExtra("orderId",order.getId());
+                    intent.putExtra("orderItems", (Serializable) orderNotPaidItems);
+                    startActivityForResult(intent,0);
                     break;
                 case  1://已支付
                     Toast.makeText(getActivity(), "已支付", Toast.LENGTH_SHORT).show();
@@ -98,7 +122,27 @@ public class OrderFragment extends Fragment {
             }
         }
     }
-private class MyAdapter extends BaseAdapter{
+//处理intent回传
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        switch (requestCode) {
+            case  0:
+                if(resultCode==getActivity().RESULT_OK){
+                    if(intent.getStringExtra("result").equals("cancel")){
+                        data.get(intent.getIntExtra("position",0)).put("status",2);
+                        adapter.notifyDataSetChanged();
+                    }else if(intent.getStringExtra("result").equals("pay")){
+                        data.get(intent.getIntExtra("position",0)).put("status",1);
+                        adapter.notifyDataSetChanged();
+                    }
+
+                }
+                break;
+        }
+    }
+
+    private class MyAdapter extends BaseAdapter{
     List<Map<String,Object>> data;
     public MyAdapter(List<Map<String,Object>> data){
         this.data=data;
@@ -147,6 +191,7 @@ private class MyAdapter extends BaseAdapter{
         }
         viewHolder.tvPrice.setText(String.valueOf(data.get(position).get("price")));
         viewHolder.imForward.setImageResource(R.mipmap.forward_25);
+
         return convertView;
     }
 
@@ -246,7 +291,7 @@ private class MyAdapter extends BaseAdapter{
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            List<Order> orders=null;
+
             data.clear();
             //关闭进度对话框
             if(pDialog!=null){
