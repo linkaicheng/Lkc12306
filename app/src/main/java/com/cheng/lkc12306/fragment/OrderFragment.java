@@ -212,6 +212,9 @@ public class OrderFragment extends Fragment {
         return 0;
     }
 }
+    /**
+     * 未支付和全部订单切换监听
+     */
     private class CheckChangeListener implements RadioGroup.OnCheckedChangeListener{
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -340,9 +343,6 @@ public class OrderFragment extends Fragment {
                         data.add(row);
                     }
                     adapter.notifyDataSetChanged();
-
-
-
                 }
             }else if(o instanceof String){
                 if("2".equals(o)){

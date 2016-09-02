@@ -38,14 +38,18 @@ import java.util.List;
 import java.util.Map;
 
 public class PaidActivity extends AppCompatActivity {
-private TextView tvOrderId;
+    //订单id显示控件
+    private TextView tvOrderId;
     private ListView lvOrderPaid;
+    //查看二维码按钮
     private Button btnQrCode;
     private SimpleAdapter adapter;
     private List<Map<String,Object>> data=null;
+    //保存订单id
     private String orderId;
-
+//订单的集合，支付的或总的
     private  List<OrderNotPaidItem>  items=null;
+    //进度对话框
     private ProgressDialog pDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +68,16 @@ private TextView tvOrderId;
                 ,new String[]{"name","trainNo","date","seatNO"}
                 ,new int[]{R.id.tvName,R.id.tvTrainNo,R.id.tvDate,R.id.tvSeatNO});
         lvOrderPaid.setAdapter(adapter);
+        //查看二维码
         btnQrCode.setOnClickListener(new BtnQrcodeListener());
+        //点击某一个人
         lvOrderPaid.setOnItemClickListener(new LvOrderPaidListener(items));
 
-
-
-
     }
+
+    /**
+     * 点击某一个人，出现退票、改签对话框
+     */
     private class LvOrderPaidListener implements AdapterView.OnItemClickListener{
         List<OrderNotPaidItem> items2;
         public LvOrderPaidListener(List<OrderNotPaidItem> items){
@@ -94,11 +101,13 @@ private TextView tvOrderId;
                 }
             });
             builder.create().show();
-
-
         }
 
     }
+
+    /**
+     * 对话框中退票或改签的监听处理
+     */
     private class MyDialogClickListener implements DialogInterface.OnClickListener{
         String[] items;
         int position;
@@ -107,8 +116,6 @@ private TextView tvOrderId;
             this.items=items;
             this.position=position;
             this.items2=items2;
-
-
         }
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -236,7 +243,11 @@ Toast.makeText(PaidActivity.this, "改签", Toast.LENGTH_SHORT).show();
 
         }
     }
-private class BtnQrcodeListener implements View.OnClickListener{
+
+    /**
+     * 查看二维码按钮监听
+     */
+    private class BtnQrcodeListener implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         final AlertDialog.Builder builder=new AlertDialog.Builder(PaidActivity.this);

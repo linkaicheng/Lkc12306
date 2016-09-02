@@ -38,6 +38,7 @@ private TextView tvOrderId,tvCancel,tvPay;
     private SimpleAdapter adapter=null;
     private String   orderId;
     private ProgressDialog pDialog;
+    //保存取消订单或确定支付操作
     private String action;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

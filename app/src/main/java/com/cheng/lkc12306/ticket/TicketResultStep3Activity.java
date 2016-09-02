@@ -32,7 +32,6 @@ public class TicketResultStep3Activity extends AppCompatActivity {
     //总票价
     private float priceSum;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,39 +121,23 @@ public class TicketResultStep3Activity extends AppCompatActivity {
             viewHolder.tvStep3ContactName.setText((String) data.get(position).get("name"));
             viewHolder.tvStep3ContactIdCard.setText((String)data.get(position).get("idCard"));
             viewHolder.imCancel.setImageResource(R.mipmap.cancel_25);
-            //获取乘车人的类型，用以计算票价
-            String passengerType=((String) data.get(position).get("name")).split("\\(")[1].split("\\)")[0];
-            viewHolder.imCancel.setOnClickListener(new ImcancelListener(passengerType,position));
-            //票价计算，儿童学生半价
-            if(passengerType.equals("儿童")||passengerType.equals("学生")){
-                priceSum=priceSum+price/2;
-            }else{
-                priceSum=priceSum+price;
-            }
-             //显示订单总额
-            tvStep3PriceSum.setText("订单总额：¥"+priceSum);
+            //取消乘车人
+            viewHolder.imCancel.setOnClickListener(new ImcancelListener(position));
             return convertView;
         }
 
         //取消联系人
         private class ImcancelListener implements View.OnClickListener {
             private int position;
-            private String passengerType;
-            public  ImcancelListener(String passengerType,int position){
+
+            public  ImcancelListener(int position){
                 this.position=position;
-                this.passengerType=passengerType;
             }
             @Override
             public void onClick(View v) {
                 passengers.remove(position);
-                priceSum=0;
-                //如果乘客为空，不会执行到adapter的getView()方法，
-                // 因此不会执行里面的计算总额和显示总额的操作
-                if(passengers.size()==0){
-                    tvStep3PriceSum.setText("订单总额：¥"+priceSum);
-                }else{
-                    adapter.notifyDataSetChanged();
-                }
+                //删除乘车人后，需要重新计算过票价
+                updatePriceSum(passengers);
             }
         }
 
@@ -167,6 +150,30 @@ public class TicketResultStep3Activity extends AppCompatActivity {
         public Object getItem(int position) {
             return null;
         }
+    }
+
+    /**
+     *更新票价总而，每次从添加联系人过来，或删除联系人后需要更新
+     * @param passengers
+     */
+    private void updatePriceSum(List<Map<String, Object>> passengers){
+        priceSum=0;
+        for(int i=0;i<passengers.size();i++){
+            //获取乘车人的类型，用以计算票价
+            String passengerType=((String) passengers.get(i).get("name")).split("\\(")[1].split("\\)")[0];
+            //票价计算，儿童学生半价
+            if(passengerType.equals("儿童")||passengerType.equals("学生")){
+                priceSum=priceSum+price/2;
+            }else{
+                priceSum=priceSum+price;
+            }
+        }
+        //如果乘车人为零，总额为零
+        if(passengers.size()==0){
+            priceSum=0;
+        }
+        //显示订单总额
+        tvStep3PriceSum.setText("订单总额：¥"+priceSum);
     }
 
     /**
@@ -222,12 +229,11 @@ public class TicketResultStep3Activity extends AppCompatActivity {
 
         if(requestCode==REQUESTCODE&&resultCode==RESULT_OK){
             if(data!=null){
-                //每次从添加联系人界面回来，订单总额归零，重新计算
-                priceSum=0;
                 //设置适配器，BaseAdapter的方式
                 passengers= (List<Map<String, Object>>) data.getSerializableExtra("passengers");
                 adapter = new Adapter(passengers);
                 lvStep3.setAdapter(adapter);
+                updatePriceSum(passengers);
             }
         }
     }
