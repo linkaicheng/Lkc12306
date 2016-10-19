@@ -8,6 +8,11 @@ import android.net.NetworkInfo;
  * Created by cheng.
  */
 public class NetUtils {
+    /**
+     * 检查网络是否可用
+     * @param context
+     * @return
+     */
     public static boolean check(Context context) {
         try {
             ConnectivityManager connectivity = (ConnectivityManager) context

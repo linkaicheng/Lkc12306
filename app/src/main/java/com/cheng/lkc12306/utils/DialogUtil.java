@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
  * Created by Administrator on 2016/8/16 0016.
  */
 public class DialogUtil {
+    //让对话框不消失
   public static void dialogClose(DialogInterface dialog,boolean flag){
         try {
             Field field=dialog.getClass().getSuperclass().getDeclaredField("mShowing");
@@ -18,7 +19,6 @@ public class DialogUtil {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
 
     }
 }

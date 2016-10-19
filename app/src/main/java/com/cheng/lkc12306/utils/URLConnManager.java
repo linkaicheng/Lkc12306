@@ -20,7 +20,8 @@ import java.util.List;
  * Created by cheng.
  */
 public class URLConnManager {
-    public static HttpURLConnection getHttpURLConnection(String url) {//获得网络连接
+    //获得网络连接
+    public static HttpURLConnection getHttpURLConnection(String url) {
         HttpURLConnection httpURLConnection = null;
         try {
 
@@ -46,8 +47,8 @@ public class URLConnManager {
 
         return httpURLConnection;
     }
-
-    public static void postParams(OutputStream output, List<NameValuePair> paramList) throws IOException {//对传过来的参数进行连接，并将数据写入服务器
+    //对传过来的参数进行连接，并将数据写入服务器
+    public static void postParams(OutputStream output, List<NameValuePair> paramList) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         for (NameValuePair pair : paramList) {
             if (!TextUtils.isEmpty(stringBuilder)) {
@@ -66,8 +67,8 @@ public class URLConnManager {
         writer.close();
     }
 
-
-    public static String converStreamToString(InputStream is) throws IOException {//将流转换成字符串
+    //将流转换成字符串
+    public static String converStreamToString(InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuffer sb = new StringBuffer();
         String line = null;
